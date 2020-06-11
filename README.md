@@ -1,8 +1,6 @@
-# The Hub
+# Project Plan
 
-## Project Plan
-
-### Idea
+## Idea
 
 The Hub is an internal communication, collaboration, and data collection tool for a high-volume, ‘single point of contact’ oriented retail automotive sales department. This first production app will be specifically designed for Sonic Automotive's Echo Park stores.
 
@@ -58,7 +56,7 @@ In order to understand the problem, we must first understand the process:
 
 ### The Problems
 
-At a small volume, with 10-20 EGs and 3-4 finance managers, the above process can be fulfilled manually with minimal negative impact to guest experience. However, as you scale, for example, 60-70 EGs are each balancing multiple guests at a time and 8-10 Finance Managers are each handling multiple deals at a time, the guest experience degrades without a system to support:
+At a small volume (~15-20 EGs and ~3-4 finance managers) the above process can be fulfilled manually with minimal negative impact to guest experience. However, as you scale and 60-70 EGs are each balancing multiple guests at a time and 8-10 Finance Managers are each handling multiple deals at a time, the guest experience degrades without a system to support:
 
 - How does an EG get matched up with an available finance manager when every finance manager is currently working on deals?
 - How do you ensure you prioritize guests who are in the building?
@@ -74,15 +72,16 @@ At a small volume, with 10-20 EGs and 3-4 finance managers, the above process ca
 
 The Hub creates one place to submit, track, and analyze metrics for these internal processes.
 
-### Features
+## Features
 
-#### MVP
+### MVP
 
 - EGs can create new finance app in The Hub and enters details of guest needs and expectations and whether guest is in the showroom or not.
 - File upload to form
 - The app is assigned to an available Finance Manager via round-robin
 - Finance Manager can toggle availability on and off.
-- Finance Manager able to record internal notes as they are working the deal.
+- Finance Manager able to record internal notes only visible to other Finance Managers
+- Finance Manager and EGs can send messages
 - Entire history of all changes to a deal recorded in an audit.
 - Deal status changes trigger email notification to correct party.
 - When deal status is marked sold, EG can schedule delivery which will:
@@ -92,8 +91,9 @@ The Hub creates one place to submit, track, and analyze metrics for these intern
 - Detailed performance metrics for the entire sales team.
 - Admin users for EG, Finance, Doc Spec, and Sales Support can configure statuses and triggers.
 - Tablet optimized views for retina iPad
+- Collapsible main navigation menu
 
-#### Stretch Goals
+### Stretch Goals
 
 - Load balancing round-robin distribution with configurable preferences
 - Smart ETA for each deal based on current system load
@@ -103,26 +103,49 @@ The Hub creates one place to submit, track, and analyze metrics for these intern
 - Link with Inventory System
 - Link with CRM/DMS
 
-### Views
+## Views
 
-#### Landing Page
+### Landing Page
 
-#### Home Page
+### Home Page
 
-#### Form Page
+### Form Page
 
-### Database Schema
+## Routes
+- / -> Login
+- /home -> Home
+- /new -> New App Form
+- /finance -> Finance Queue
+- /finance/:appid -> Specific App
+- /deliveryprep -> Delivery Prep Queue
+- /printqueue -> Print Queue
+
+## Database
+- users
+- user_groups
+- guests
+- tickets
+- ticket_type
+- ticket_status
+- ticket_msgs
+- ticket_attachments
+- delivery_prep
+- delivery_prep_status
+- delivery_prep_task
+- print_queue
+- print_queue_status
+- print_queue_task
 
 #### users
 
 <table>
-<tr><th>Name</th><th>Type</th></tr>
+<tr><th>Name</th><th>Type/Constraints</th></tr>
 <tr><td>id</td><td>SERIAL PK</td></tr>
 <tr><td>email</td><td>EMAIL</td></tr>
 <tr><td>password</td><td>TEXT</td></tr>
 <tr><td>first_name</td><td>VARCHAR(50)</td></tr>
 <tr><td>last_name</td><td>VARCHAR(50)</td></tr>
-<tr><td>phone</td><td>PHONE</td></tr>
+<tr><td>phone</td><td>VARCHAR(10)</td></tr>
 <tr><td>resetCount</td><td>INT</td></tr>
 <tr><td>requireReset</td><td>BOOL</td></tr>
 <tr><td>lastResetTime</td><td>TIMESTAMPTZ(2)</td></tr>
@@ -132,44 +155,197 @@ The Hub creates one place to submit, track, and analyze metrics for these intern
 </table>
 
 #### user_groups
+
 <table>
-<tr><th>Name</th><th>Type</th></tr>
+<tr><th>Name</th><th>Type/Constraints</th></tr>
 <tr><td>id</td><td>SERIAL PK</td></tr>
 <tr><td>name</td><td>VARCHAR(50)</td></tr>
 </table>
 
 #### guests
+
 <table>
-<tr><th>Name</th><th>Type</th></tr>
+<tr><th>Name</th><th>Type/Constraints</th></tr>
 <tr><td>id</td><td>SERIAL PK</td></tr>
 <tr><td>guest_name</td><td>VARCHAR(200)</td></tr>
-<tr><td>guest_phone</td><td>VARCHAR(50)</td></tr>
+<tr><td>guest_phone</td><td>VARCHAR(10)</td></tr>
 <tr><td>eg_id</td><td>INT FK users(id)</td></tr>
 </table>
 
-#### deals
+#### tickets
+
 <table>
-<tr><th>Name</th><th>Type</th></tr>
+<tr><th>Name</th><th>Type/Constraints</th></tr>
 <tr><td>id</td><td>SERIAL PK</td></tr>
 <tr><td>guest_id</td><td>INT FK guests(id)</td></tr>
 <tr><td>eg_id</td><td>INT FK users(id)</td></tr>
 <tr><td>finance_id</td><td>INT FK users(id)</td></tr>
-<tr><td>deal_type</td><td>INT FK deal_types(id)</td></tr>
+<tr><td>ticket_type</td><td>INT FK ticket_type(id)</td></tr>
+<tr><td>ticket_status</td><td>INT FK ticket_status(id)</td></tr>
 <tr><td>stock</td><td>VARCHAR(10)</td></tr>
 <tr><td>pmt</td><td>INT</td></tr>
 <tr><td>down_pmt</td><td>INT</td></tr>
-<tr><td>requireReset</td><td>BOOL</td></tr>
-<tr><td>lastResetTime</td><td>TIMESTAMPTZ(2)</td></tr>
-<tr><td>lastVisitDate</td><td>TIMESTAMPTZ(2)</td></tr>
-<tr><td>activation</td><td>TEXT</td></tr>
-<tr><td>user_type</td><td>INT FK user_groups(id)</td></tr>
+<tr><td>created</td><td>TIMESTAMPTZ(2) DEFAULT now()</td></tr>
+<tr><td>updated</td><td>TIMESTAMPTZ(2)</td></tr>
+<tr><td>closed</td><td>TIMESTAMPTZ(2)</td></tr>
 </table>
 
-#### deal_types
+#### ticket_type
+
 <table>
-<tr><th>Name</th><th>Type</th></tr>
+<tr><th>Name</th><th>Type/Constraints</th></tr>
 <tr><td>id</td><td>SERIAL PK</td></tr>
 <tr><td>name</td><td>VARCHAR(50)</td></tr>
 </table>
 
-#### deal_msgs
+#### ticket_status
+
+<table>
+<tr><th>Name</th><th>Type/Constraints</th></tr>
+<tr><td>id</td><td>SERIAL PK</td></tr>
+<tr><td>name</td><td>VARCHAR(50)</td></tr>
+</table>
+
+#### ticket_msgs
+
+<table>
+<tr><th>Name</th><th>Type/Constraints</th></tr>
+<tr><td>id</td><td>SERIAL PK</td></tr>
+<tr><td>ticket_id</td><td>INT FK tickets(id)</td></tr>
+<tr><td>user_id</td><td>INT FK users(id)</td></tr>
+<tr><td>private</td><td>BOOL</td></tr>
+<tr><td>message</td><td>TEXT</td></tr>
+<tr><td>timestamp</td><td>TIMESTAMPTZ(2) DEFAULT now()</td></tr>
+</table>
+
+#### ticket_attachments
+
+<table>
+<tr><th>Name</th><th>Type/Constraints</th></tr>
+<tr><td>id</td><td>SERIAL PK</td></tr>
+<tr><td>guest_id</td><td>INT FK guests(id)</td></tr>
+<tr><td>ticket_id</td><td>INT FK tickets(id)</td></tr>
+<tr><td>user_id</td><td>INT FK users(id)</td></tr>
+<tr><td>filepath</td><td>TEXT</td></tr>
+<tr><td>timestamp</td><td>TIMESTAMPTZ(2) DEFAULT now()</td></tr>
+</table>
+
+#### delivery_prep
+
+<table>
+<tr><th>Name</th><th>Type/Constraints</th></tr>
+<tr><td>id</td><td>SERIAL PK</td></tr>
+<tr><td>guest_id</td><td>INT FK guests(id)</td></tr>
+<tr><td>ticket_id</td><td>INT FK tickets(id)</td></tr>
+<tr><td>eg_id</td><td>INT FK users(id)</td></tr>
+<tr><td>support_id</td><td>INT FK users(id)</td></tr>
+<tr><td>status</td><td>INT FK delivery_prep_status(id)</td></tr>
+<tr><td>next_status</td><td>INT FK delivery_prep_status(id)</td></tr>
+<tr><td>created</td><td>TIMESTAMPTZ(2) DEFAULT now()</td></tr>
+<tr><td>updated</td><td>TIMESTAMPTZ(2)</td></tr>
+<tr><td>closed</td><td>TIMESTAMPTZ(2)</td></tr>
+</table>
+
+
+#### delivery_prep_status
+
+<table>
+<tr><th>Name</th><th>Type/Constraints</th></tr>
+<tr><td>id</td><td>SERIAL PK</td></tr>
+<tr><td>name</td><td>VARCHAR(50)</td></tr>
+<tr><td>order</td><td>INT</td></tr>
+</table>
+
+#### delivery_prep_task
+
+<table>
+<tr><th>Name</th><th>Type/Constraints</th></tr>
+<tr><td>id</td><td>SERIAL PK</td></tr>
+<tr><td>delivery_id</td><td>INT FK delivery_prep(id)</td></tr>
+<tr><td>user_id</td><td>INT FK users(id)</td></tr>
+<tr><td>new_status</td><td>INT FK delivery_prep_status(id)</td></tr>
+<tr><td>notes</td><td>VARCHAR(500)</td></tr>
+<tr><td>timestamp</td><td>TIMESTAMPTZ(2) DEFAULT now()</td></tr>
+</table>
+
+#### print_queue
+
+<table>
+<tr><th>Name</th><th>Type/Constraints</th></tr>
+<tr><td>id</td><td>SERIAL PK</td></tr>
+<tr><td>guest_id</td><td>INT FK guests(id)</td></tr>
+<tr><td>ticket_id</td><td>INT FK tickets(id)</td></tr>
+<tr><td>eg_id</td><td>INT FK users(id)</td></tr>
+<tr><td>support_id</td><td>INT FK users(id)</td></tr>
+<tr><td>status</td><td>INT FK print_queue_status(id)</td></tr>
+<tr><td>next_status</td><td>INT FK print_queue_status(id)</td></tr>
+<tr><td>created</td><td>TIMESTAMPTZ(2) DEFAULT now()</td></tr>
+<tr><td>updated</td><td>TIMESTAMPTZ(2)</td></tr>
+<tr><td>closed</td><td>TIMESTAMPTZ(2)</td></tr>
+</table>
+
+#### print_queue_status
+
+<table>
+<tr><th>Name</th><th>Type/Constraints</th></tr>
+<tr><td>id</td><td>SERIAL PK</td></tr>
+<tr><td>name</td><td>VARCHAR(50)</td></tr>
+<tr><td>order</td><td>INT</td></tr>
+</table>
+
+#### delivery_prep_task
+
+<table>
+<tr><th>Name</th><th>Type/Constraints</th></tr>
+<tr><td>id</td><td>SERIAL PK</td></tr>
+<tr><td>print_id</td><td>INT FK print_queue(id)</td></tr>
+<tr><td>user_id</td><td>INT FK users(id)</td></tr>
+<tr><td>new_status</td><td>INT FK print_queue_status(id)</td></tr>
+<tr><td>notes</td><td>VARCHAR(500)</td></tr>
+<tr><td>timestamp</td><td>TIMESTAMPTZ(2) DEFAULT now()</td></tr>
+</table>
+
+## Endpoints
+
+### GET '/api/tickets'
+```
+req: none
+res: [
+   {
+   ticket_id: 1,
+   guest_id: 1,
+   eg_id: 1,
+   finance_id: 1,
+   guest: 'Fred Bob',
+   guest_phone: '2141231234',
+   eg: 'Bob Fred',
+   finance: 'George Bob',
+   type: 'Finance',
+   status: 'New Submittal',
+   stock: 'PJJ123123',
+   created: '2020-06-12 10:23:54+02',
+   updated: '2020-06-12 10:23:54+02',
+   closed: '',
+}
+]
+```
+
+### GET '/api/ticket/:ticketid'
+```
+req: req.params.ticketid
+res: {
+   ticket_id: 1,
+   guest_id: 1,
+   eg_id: 1,
+   finance_id: 1,
+   guest: 'Fred Bob',
+   eg: 'Bob Fred',
+   finance: 'George Bob',
+   type: 'Finance',
+   status: 'New Submittal',
+   stock: 'PJJ123123',
+   created: '2020-06-12 10:23:54+02',
+   updated: '2020-06-12 10:23:54+02',
+   closed: '',
+}
+```
