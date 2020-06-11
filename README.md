@@ -1,4 +1,3 @@
-# Project Plan
 - [Project Plan](#project-plan)
   - [Idea](#idea)
     - [The Process](#the-process)
@@ -30,6 +29,8 @@
   - [Endpoints](#endpoints)
     - [GET '/api/tickets'](#get-apitickets)
     - [GET '/api/ticket/:ticketid'](#get-apiticketticketid)
+
+# Project Plan
 
 ## Idea
 
