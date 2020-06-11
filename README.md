@@ -1,4 +1,35 @@
 # Project Plan
+- [Project Plan](#project-plan)
+  - [Idea](#idea)
+    - [The Process](#the-process)
+    - [The Problems](#the-problems)
+    - [The Solution](#the-solution)
+  - [Features](#features)
+    - [MVP](#mvp)
+    - [Stretch Goals](#stretch-goals)
+  - [Views](#views)
+    - [Landing Page](#landing-page)
+    - [Home Page](#home-page)
+    - [Form Page](#form-page)
+  - [Routes](#routes)
+  - [Database](#database)
+      - [users](#users)
+      - [user_groups](#user_groups)
+      - [guests](#guests)
+      - [tickets](#tickets)
+      - [ticket_type](#ticket_type)
+      - [ticket_status](#ticket_status)
+      - [ticket_msgs](#ticket_msgs)
+      - [ticket_attachments](#ticket_attachments)
+      - [delivery_prep](#delivery_prep)
+      - [delivery_prep_status](#delivery_prep_status)
+      - [delivery_prep_task](#delivery_prep_task)
+      - [print_queue](#print_queue)
+      - [print_queue_status](#print_queue_status)
+      - [delivery_prep_task](#delivery_prep_task-1)
+  - [Endpoints](#endpoints)
+    - [GET '/api/tickets'](#get-apitickets)
+    - [GET '/api/ticket/:ticketid'](#get-apiticketticketid)
 
 ## Idea
 
@@ -121,20 +152,6 @@ The Hub creates one place to submit, track, and analyze metrics for these intern
 - /printqueue -> Print Queue
 
 ## Database
-- users
-- user_groups
-- guests
-- tickets
-- ticket_type
-- ticket_status
-- ticket_msgs
-- ticket_attachments
-- delivery_prep
-- delivery_prep_status
-- delivery_prep_task
-- print_queue
-- print_queue_status
-- print_queue_task
 
 #### users
 
