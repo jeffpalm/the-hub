@@ -1,5 +1,6 @@
 - [Project Plan](#project-plan)
   - [Idea](#idea)
+  - [Target User](#target-user)
     - [The Process](#the-process)
     - [The Problems](#the-problems)
     - [The Solution](#the-solution)
@@ -12,20 +13,6 @@
     - [Form Page](#form-page)
   - [Routes](#routes)
   - [Database](#database)
-      - [users](#users)
-      - [user_groups](#user_groups)
-      - [guests](#guests)
-      - [tickets](#tickets)
-      - [ticket_type](#ticket_type)
-      - [ticket_status](#ticket_status)
-      - [ticket_msgs](#ticket_msgs)
-      - [ticket_attachments](#ticket_attachments)
-      - [delivery_prep](#delivery_prep)
-      - [delivery_prep_status](#delivery_prep_status)
-      - [delivery_prep_task](#delivery_prep_task)
-      - [print_queue](#print_queue)
-      - [print_queue_status](#print_queue_status)
-      - [delivery_prep_task](#delivery_prep_task-1)
   - [Endpoints](#endpoints)
     - [GET '/api/tickets'](#get-apitickets)
     - [GET '/api/ticket/:ticketid'](#get-apiticketticketid)
@@ -34,7 +21,11 @@
 
 ## Idea
 
-The Hub is an internal communication, collaboration, and data collection tool for a high-volume, ‘single point of contact’ oriented retail automotive sales department. This first production app will be specifically designed for Sonic Automotive's Echo Park stores.
+The Hub is an internal communication, collaboration, task management, and data collection platform for high-volume, ‘single point of contact’ retail automotive sales departments. This first production app will be specifically designed for Sonic Automotive's Echo Park stores.
+
+## Target User
+
+Retail auto sales employees
 
 ### The Process
 
@@ -134,6 +125,8 @@ The Hub creates one place to submit, track, and analyze metrics for these intern
 - Finance Manager scheduled availability
 - Link with Inventory System
 - Link with CRM/DMS
+- Sales reps can schedule SMS and push notifications
+- Create schedule for user-groups
 
 ## Views
 
@@ -154,174 +147,7 @@ The Hub creates one place to submit, track, and analyze metrics for these intern
 
 ## Database
 
-#### users
-
-<table>
-<tr><th>Name</th><th>Type/Constraints</th></tr>
-<tr><td>id</td><td>SERIAL PK</td></tr>
-<tr><td>email</td><td>EMAIL</td></tr>
-<tr><td>password</td><td>TEXT</td></tr>
-<tr><td>first_name</td><td>VARCHAR(50)</td></tr>
-<tr><td>last_name</td><td>VARCHAR(50)</td></tr>
-<tr><td>phone</td><td>VARCHAR(10)</td></tr>
-<tr><td>resetCount</td><td>INT</td></tr>
-<tr><td>requireReset</td><td>BOOL</td></tr>
-<tr><td>lastResetTime</td><td>TIMESTAMPTZ(2)</td></tr>
-<tr><td>lastVisitDate</td><td>TIMESTAMPTZ(2)</td></tr>
-<tr><td>activation</td><td>TEXT</td></tr>
-<tr><td>user_type</td><td>INT FK user_groups(id)</td></tr>
-</table>
-
-#### user_groups
-
-<table>
-<tr><th>Name</th><th>Type/Constraints</th></tr>
-<tr><td>id</td><td>SERIAL PK</td></tr>
-<tr><td>name</td><td>VARCHAR(50)</td></tr>
-</table>
-
-#### guests
-
-<table>
-<tr><th>Name</th><th>Type/Constraints</th></tr>
-<tr><td>id</td><td>SERIAL PK</td></tr>
-<tr><td>guest_name</td><td>VARCHAR(200)</td></tr>
-<tr><td>guest_phone</td><td>VARCHAR(10)</td></tr>
-<tr><td>eg_id</td><td>INT FK users(id)</td></tr>
-</table>
-
-#### tickets
-
-<table>
-<tr><th>Name</th><th>Type/Constraints</th></tr>
-<tr><td>id</td><td>SERIAL PK</td></tr>
-<tr><td>guest_id</td><td>INT FK guests(id)</td></tr>
-<tr><td>eg_id</td><td>INT FK users(id)</td></tr>
-<tr><td>finance_id</td><td>INT FK users(id)</td></tr>
-<tr><td>ticket_type</td><td>INT FK ticket_type(id)</td></tr>
-<tr><td>ticket_status</td><td>INT FK ticket_status(id)</td></tr>
-<tr><td>stock</td><td>VARCHAR(10)</td></tr>
-<tr><td>pmt</td><td>INT</td></tr>
-<tr><td>down_pmt</td><td>INT</td></tr>
-<tr><td>created</td><td>TIMESTAMPTZ(2) DEFAULT now()</td></tr>
-<tr><td>updated</td><td>TIMESTAMPTZ(2)</td></tr>
-<tr><td>closed</td><td>TIMESTAMPTZ(2)</td></tr>
-</table>
-
-#### ticket_type
-
-<table>
-<tr><th>Name</th><th>Type/Constraints</th></tr>
-<tr><td>id</td><td>SERIAL PK</td></tr>
-<tr><td>name</td><td>VARCHAR(50)</td></tr>
-</table>
-
-#### ticket_status
-
-<table>
-<tr><th>Name</th><th>Type/Constraints</th></tr>
-<tr><td>id</td><td>SERIAL PK</td></tr>
-<tr><td>name</td><td>VARCHAR(50)</td></tr>
-</table>
-
-#### ticket_msgs
-
-<table>
-<tr><th>Name</th><th>Type/Constraints</th></tr>
-<tr><td>id</td><td>SERIAL PK</td></tr>
-<tr><td>ticket_id</td><td>INT FK tickets(id)</td></tr>
-<tr><td>user_id</td><td>INT FK users(id)</td></tr>
-<tr><td>private</td><td>BOOL</td></tr>
-<tr><td>message</td><td>TEXT</td></tr>
-<tr><td>timestamp</td><td>TIMESTAMPTZ(2) DEFAULT now()</td></tr>
-</table>
-
-#### ticket_attachments
-
-<table>
-<tr><th>Name</th><th>Type/Constraints</th></tr>
-<tr><td>id</td><td>SERIAL PK</td></tr>
-<tr><td>guest_id</td><td>INT FK guests(id)</td></tr>
-<tr><td>ticket_id</td><td>INT FK tickets(id)</td></tr>
-<tr><td>user_id</td><td>INT FK users(id)</td></tr>
-<tr><td>filepath</td><td>TEXT</td></tr>
-<tr><td>timestamp</td><td>TIMESTAMPTZ(2) DEFAULT now()</td></tr>
-</table>
-
-#### delivery_prep
-
-<table>
-<tr><th>Name</th><th>Type/Constraints</th></tr>
-<tr><td>id</td><td>SERIAL PK</td></tr>
-<tr><td>guest_id</td><td>INT FK guests(id)</td></tr>
-<tr><td>ticket_id</td><td>INT FK tickets(id)</td></tr>
-<tr><td>eg_id</td><td>INT FK users(id)</td></tr>
-<tr><td>support_id</td><td>INT FK users(id)</td></tr>
-<tr><td>status</td><td>INT FK delivery_prep_status(id)</td></tr>
-<tr><td>next_status</td><td>INT FK delivery_prep_status(id)</td></tr>
-<tr><td>created</td><td>TIMESTAMPTZ(2) DEFAULT now()</td></tr>
-<tr><td>updated</td><td>TIMESTAMPTZ(2)</td></tr>
-<tr><td>closed</td><td>TIMESTAMPTZ(2)</td></tr>
-</table>
-
-
-#### delivery_prep_status
-
-<table>
-<tr><th>Name</th><th>Type/Constraints</th></tr>
-<tr><td>id</td><td>SERIAL PK</td></tr>
-<tr><td>name</td><td>VARCHAR(50)</td></tr>
-<tr><td>order</td><td>INT</td></tr>
-</table>
-
-#### delivery_prep_task
-
-<table>
-<tr><th>Name</th><th>Type/Constraints</th></tr>
-<tr><td>id</td><td>SERIAL PK</td></tr>
-<tr><td>delivery_id</td><td>INT FK delivery_prep(id)</td></tr>
-<tr><td>user_id</td><td>INT FK users(id)</td></tr>
-<tr><td>new_status</td><td>INT FK delivery_prep_status(id)</td></tr>
-<tr><td>notes</td><td>VARCHAR(500)</td></tr>
-<tr><td>timestamp</td><td>TIMESTAMPTZ(2) DEFAULT now()</td></tr>
-</table>
-
-#### print_queue
-
-<table>
-<tr><th>Name</th><th>Type/Constraints</th></tr>
-<tr><td>id</td><td>SERIAL PK</td></tr>
-<tr><td>guest_id</td><td>INT FK guests(id)</td></tr>
-<tr><td>ticket_id</td><td>INT FK tickets(id)</td></tr>
-<tr><td>eg_id</td><td>INT FK users(id)</td></tr>
-<tr><td>support_id</td><td>INT FK users(id)</td></tr>
-<tr><td>status</td><td>INT FK print_queue_status(id)</td></tr>
-<tr><td>next_status</td><td>INT FK print_queue_status(id)</td></tr>
-<tr><td>created</td><td>TIMESTAMPTZ(2) DEFAULT now()</td></tr>
-<tr><td>updated</td><td>TIMESTAMPTZ(2)</td></tr>
-<tr><td>closed</td><td>TIMESTAMPTZ(2)</td></tr>
-</table>
-
-#### print_queue_status
-
-<table>
-<tr><th>Name</th><th>Type/Constraints</th></tr>
-<tr><td>id</td><td>SERIAL PK</td></tr>
-<tr><td>name</td><td>VARCHAR(50)</td></tr>
-<tr><td>order</td><td>INT</td></tr>
-</table>
-
-#### delivery_prep_task
-
-<table>
-<tr><th>Name</th><th>Type/Constraints</th></tr>
-<tr><td>id</td><td>SERIAL PK</td></tr>
-<tr><td>print_id</td><td>INT FK print_queue(id)</td></tr>
-<tr><td>user_id</td><td>INT FK users(id)</td></tr>
-<tr><td>new_status</td><td>INT FK print_queue_status(id)</td></tr>
-<tr><td>notes</td><td>VARCHAR(500)</td></tr>
-<tr><td>timestamp</td><td>TIMESTAMPTZ(2) DEFAULT now()</td></tr>
-</table>
+<iframe width="560" height="315" src='https://dbdiagram.io/embed/5ee40e849ea313663b3a7a18'> </iframe>
 
 ## Endpoints
 
