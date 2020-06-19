@@ -31,9 +31,9 @@ Retail auto sales employees
 
 In order to understand the problem, we must first understand the process:
 
-1. Guest is matched with an Experience Guide (EG) who is their single point of contact throughout the entire sales process. This means _the guest does not typically communicate with the finance team directly during the purchase process._
+1. Guest is matched with an Experience Guide (Sales Rep) who is their single point of contact throughout the entire sales process. This means _the guest does not typically communicate with the finance team directly during the purchase process._
 2. Guest selects a vehicle they are interested in purchasing. **(Guest could be in person or remote)**
-3. EG conducts guest interview to:
+3. Sales Rep conducts guest interview to:
    1. Determine method of payment
       1. Cash
       2. Financing
@@ -45,15 +45,15 @@ In order to understand the problem, we must first understand the process:
       - Credit worthiness
    3. Collect all necessary personal and financial information
    4. Load information into CRM (every time) and Credit Processing Software (if applicable)
-4. EG finds an available Finance Manager to:
+4. Sales Rep finds an available Finance Manager to:
    1. Relay details of interview
    2. Collaborate on ways to meet guest's needs
    3. Discover any additional information they may need from the guest.
-5. Finance manager begins working on structuring deal and communicating with lenders (if applicable)
-6. EG communicates time estimate to guest
-7. When deal is ready, EG presents purchase agreement to guest.
+5. Finance manager bSales Repins working on structuring deal and communicating with lenders (if applicable)
+6. Sales Rep communicates time estimate to guest
+7. When deal is ready, Sales Rep presents purchase agreement to guest.
    1. Guest agrees:
-      1. EG:
+      1. Sales Rep:
          1. Schedule delivery with guest (if remote)
          2. Print deal jacket with all guest documents and deliver to Finance
          3. Communicate with Sales Suppport team to schedule vehicle make-ready
@@ -67,65 +67,63 @@ In order to understand the problem, we must first understand the process:
          2. Ensure contracts are completed correctly
       4. Sales Support:
          1. Fill vehicle with gas
-         2. Deliver vehicle to detail
-         3. Communicate with EG when vehicle is ready
+         2. Deliver vehicle to detail0.
+         3. Communicate with Sales Rep when vehicle is ready
    2. Guest does not agree:
-      1. EG:
+      1. Sales Rep:
          1. Communicate and collaborate with Finance Manager
       2. Finance Manager:
          1. Rehash and restructure deal to earn guest's business and maximize profitability
-         2. Communicate with EG when deal is structured and ready
+         2. Communicate with Sales Rep when deal is structured and ready
       3. Repeat until guest's needs are met.
 
 ### The Problems
 
-At a small volume (~15-20 EGs and ~3-4 finance managers) the above process can be fulfilled manually with minimal negative impact to guest experience. However, as you scale and 60-70 EGs are each balancing multiple guests at a time and 8-10 Finance Managers are each handling multiple deals at a time, the guest experience degrades without a system to support:
+At a small volume (~15-20 Sales Reps and ~3-4 finance managers) the above process can be fulfilled manually with minimal nSales Repative impact to guest experience. However, as you scale and 60-70 Sales Reps are each balancing multiple guests at a time and 8-10 Finance Managers are each handling multiple deals at a time, the guest experience dSales Reprades without a system to support:
 
-- How does an EG get matched up with an available finance manager when every finance manager is currently working on deals?
+- How does a Sales Rep get matched up with an available finance manager when every finance manager is currently working on deals?
 - How do you ensure you prioritize guests who are in the building?
 - What if the finance manager who worked a deal is off?
   - How does another finance manager get caught up to speed on the deal?
-- How does an EG accurately communicate ETA to a guest?
-- How does an EG know when their guest's purchase agreement is prepared?
-- How does Sales Support know a vehicle is sold and needs to begin make ready process?
+- How does a Sales Rep accurately communicate ETA to a guest?
+- How does a Sales Rep know when their guest's purchase agreement is prepared?
+- How does Sales Support know a vehicle is sold and needs to bSales Repin make ready process?
 - How does the Doc Specialist team keep track of deals they need to print?
 - How does leadership track each individual finance manager's total volume when there is no single system to track?
 
 ### The Solution
 
-The Hub creates one place to submit, track, and analyze metrics for these internal processes.
+The Hub creates one place to submit, track, and analyze metrics for these internal processes and tasks.
 
 ## Features
 
 ### MVP
 
-- EGs can create new finance app in The Hub and enters details of guest needs and expectations and whether guest is in the showroom or not.
-- File upload to form
-- The app is assigned to an available Finance Manager via round-robin
-- Finance Manager can toggle availability on and off.
-- Finance Manager able to record internal notes only visible to other Finance Managers
-- Finance Manager and EGs can send messages
-- Entire history of all changes to a deal recorded in an audit.
-- Deal status changes trigger email notification to correct party.
-- When deal status is marked sold, EG can schedule delivery which will:
-  - Add vehicle details to Sales Support's make-ready queue
-  - Add deal to Doc Specialist's print queue
-- Multiple "Queue Views" to be displayed on TVs in the office for at a glance status of all current deals
-- Detailed performance metrics for the entire sales team.
-- Admin users for EG, Finance, Doc Spec, and Sales Support can configure statuses and triggers.
-- Tablet optimized views for retina iPad
-- Collapsible main navigation menu
+- Sales Reps can...
+  - Create a new guest ticket
+  - Edit existing ticket 
+  - Attached relevant files to guest ticket
+  - Post messages to ticket
+  - Be notified via SMS when ticket is updated
+- Ticket is assigned to **available** managers via **load-balancing round-robin**
+- Managers can...
+  - View all tickets
+  - Change ticket status
+  - Post messages to ticket for Sales Rep
+  - Post messages to ticket for other Managers
+  - Be alerted when a new ticket is assigned to them
+- Admins can...
+  - 
 
 ### Stretch Goals
 
-- Load balancing round-robin distribution with configurable preferences
 - Smart ETA for each deal based on current system load
-- Azure Active Directory integration
+- Azure Active Directory intSales Repration
 - SMS and push notifications
 - Finance Manager scheduled availability
 - Link with Inventory System
 - Link with CRM/DMS
-- Sales reps can schedule SMS and push notifications
+- Sales reps ca Schedule SMS and push notifications
 - Create schedule for user-groups
 
 ## Views
@@ -138,16 +136,18 @@ The Hub creates one place to submit, track, and analyze metrics for these intern
 
 ## Routes
 - / -> Login
-- /home -> Home
-- /new -> New App Form
-- /finance -> Finance Queue
-- /finance/:appid -> Specific App
-- /deliveryprep -> Delivery Prep Queue
-- /printqueue -> Print Queue
+- /hub -> Home dashboard
+- /settings -> User settings
+- /tickets -> All tickets 
+- /tickets/new -> New Ticket Form
+- /tickets/:ticketid -> Specific Ticket
+- /queues -> All Ticket Queues
+- /queue/:queueid -> Specific Queue
+- /queue/:queueid/:taskid -> Specific Task
 
 ## Database
 
-<iframe width="560" height="315" src='https://dbdiagram.io/embed/5ee40e849ea313663b3a7a18'> </iframe>
+[dbdiagram](https://dbdiagram.io/d/5ee40e849ea313663b3a7a18)
 
 ## Endpoints
 
@@ -158,11 +158,11 @@ res: [
    {
    ticket_id: 1,
    guest_id: 1,
-   eg_id: 1,
+   sales_id: 1,
    finance_id: 1,
    guest: 'Fred Bob',
    guest_phone: '2141231234',
-   eg: 'Bob Fred',
+   Sales Rep: 'Bob Fred',
    finance: 'George Bob',
    type: 'Finance',
    status: 'New Submittal',
@@ -170,7 +170,7 @@ res: [
    created: '2020-06-12 10:23:54+02',
    updated: '2020-06-12 10:23:54+02',
    closed: '',
-}
+},...
 ]
 ```
 
@@ -180,10 +180,10 @@ req: req.params.ticketid
 res: {
    ticket_id: 1,
    guest_id: 1,
-   eg_id: 1,
+   sales_id: 1,
    finance_id: 1,
    guest: 'Fred Bob',
-   eg: 'Bob Fred',
+   Sales Rep: 'Bob Fred',
    finance: 'George Bob',
    type: 'Finance',
    status: 'New Submittal',
