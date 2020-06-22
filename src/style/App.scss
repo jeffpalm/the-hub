@@ -1,0 +1,32 @@
+@mixin flex($fd: column, $jc: center, $ai: center) {
+    display: flex;
+    flex-direction: $fd;
+    justify-content: $jc;
+    align-items: $ai;
+}
+
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #333d47;
+}
+
+.login {
+    @include flex();
+    width: 100vw;
+    height: 100vh;
+    img {
+        width: 250px;
+        height: auto;
+        margin-bottom: 20px;
+    }
+    .loginformgroup {
+        margin: 10px;
+    }
+    form {
+        @include flex();
+    }
+}
