@@ -1,25 +1,99 @@
-import React from 'react'
+import React, { useState } from 'react'
+import clsx from 'clsx'
 import { Link } from 'react-router-dom'
-import Navbar from 'react-bootstrap/Navbar'
-import Nav from 'react-bootstrap/Nav'
-import Form from 'react-bootstrap/Form'
-import Button from 'react-bootstrap/Button'
+import { makeStyles } from '@material-ui/core/styles'
+import AppBar from '@material-ui/core/AppBar'
+import Toolbar from '@material-ui/core/Toolbar'
+import Button from '@material-ui/core/Button'
+import IconButton from '@material-ui/core/IconButton'
+import MenuIcon from '@material-ui/icons/Menu'
+import Drawer from '@material-ui/core/Drawer'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemText from '@material-ui/core/ListItemText'
 
-const Header = () => {
+const useStyles = makeStyles(theme => ({
+	root: {
+		flexGrow: 1
+	},
+	menuButton: {
+		marginRight: theme.spacing(2)
+	},
+	title: {
+		flexGrow: 1
+	}
+}))
+
+const drawerStyles = makeStyles({
+	list: {
+		width: 250
+	},
+	fullList: {
+		width: 'auto'
+	}
+})
+
+const Header = props => {
+	const [state, setState] = useState({})
+
+	const classes = useStyles()
+	const drawerClasses = drawerStyles()
+	const anchor = 'left'
+
+	const toggleDrawer = (anchor, open) => event => {
+		if (
+			event.type === 'keydown' &&
+			(event.key === 'Tab' || event.key === 'Shift')
+		) {
+			return
+		}
+
+		setState({ ...state, [anchor]: open })
+	}
+
+	// ! Figure Out Link in Drawer Nav
+
+	const list = anchor => (
+		<div
+			className={clsx(drawerClasses.list, {
+				[drawerClasses.fullList]: anchor === 'top' || anchor === 'bottom'
+			})}
+			role='presentation'
+			onClick={toggleDrawer(anchor, false)}
+			onKeyDown={toggleDrawer(anchor, false)}>
+			<List>
+				<ListItem button>
+					<ListItemText
+						primary='Home'
+						ref={Link}
+						to='/home'
+					/>
+				</ListItem>
+			</List>
+		</div>
+	)
+
 	return (
-		<div className='tickets'>
-			<Navbar fixed='top' bg='primary' expand='lg'>
-				<Nav className='mr-auto' variant='pills'>
-					<Nav.Link as={Link} to='/home'>
-						Home
-					</Nav.Link>
-					<Nav.Link as={Link} to='/new'>New Ticket</Nav.Link>
-				</Nav>
-				<Form inline>
-					<Form.Control type='text' placeholder='Search tickets' />
-					<Button variant='outline-light'>Search</Button>
-				</Form>
-			</Navbar>
+		<div className={classes.root}>
+			<AppBar position='static'>
+				<Toolbar>
+					<IconButton
+						edge='start'
+						className={classes.menuButton}
+						color='inherit'
+						aria-label='menu'
+						onClick={toggleDrawer(anchor, true)}>
+						<MenuIcon />
+					</IconButton>
+					<Button color='inherit'>Login</Button>
+				</Toolbar>
+			</AppBar>
+			<Drawer
+				anchor={anchor}
+				open={state[anchor]}
+				onClose={toggleDrawer(anchor, false)}>
+				{list(anchor)}
+			</Drawer>
 		</div>
 	)
 }

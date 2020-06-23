@@ -6,7 +6,7 @@ import { connect } from 'react-redux'
 import { userToRedux } from './redux/authReducer'
 import { withRouter } from 'react-router-dom'
 import './style/reset.css'
-import './style/App.scss'
+
 
 const App = props => {
 	useEffect(() => {

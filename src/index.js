@@ -4,15 +4,40 @@ import App from './App'
 import { HashRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import store from './redux/store'
+import { createMuiTheme } from '@material-ui/core/styles'
+import { ThemeProvider as MuiThemeProvider } from '@material-ui/core/styles'
 import * as serviceWorker from './serviceWorker'
+import CssBaseline from '@material-ui/core/CssBaseline'
+
+const theme = createMuiTheme({
+	palette: {
+		primary: { main: '#62A60A' },
+		type: 'dark',
+		background: {
+			default: '#303030'
+		}
+	},
+	overrides: {
+		MuiCssBaseline: {
+			'@global': {
+				body: {
+					background: '#303030'
+				}
+			}
+		}
+	}
+})
 
 ReactDOM.render(
 	<React.StrictMode>
-		<Provider store={store}>
-			<HashRouter>
-				<App />
-			</HashRouter>
-		</Provider>
+		<MuiThemeProvider theme={theme}>
+			<Provider store={store}>
+				<HashRouter>
+					<CssBaseline />
+					<App />
+				</HashRouter>
+			</Provider>
+		</MuiThemeProvider>
 	</React.StrictMode>,
 	document.getElementById('root')
 )

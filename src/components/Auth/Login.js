@@ -4,6 +4,7 @@ import Button from 'react-bootstrap/Button'
 import { connect } from 'react-redux'
 import { loginUser } from '../../redux/authReducer'
 import { ToastContainer, toast } from 'react-toastify'
+import Container from '@material-ui/core/Container'
 import axios from 'axios'
 import 'react-toastify/dist/ReactToastify.css'
 
@@ -26,7 +27,7 @@ const Login = props => {
 	}
 
 	return (
-		<div className='login'>
+		<Container className='login'>
 			<img src='/assets/img/The_Hub.png' alt='Hub logo' />
 			<Form onSubmit={login}>
 				<Form.Group>
@@ -54,7 +55,7 @@ const Login = props => {
 				</Button>
 			</Form>
 			<ToastContainer />
-		</div>
+		</Container>
 	)
 }
 
