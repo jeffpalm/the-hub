@@ -1,32 +1,56 @@
 @mixin flex($fd: column, $jc: center, $ai: center) {
-    display: flex;
-    flex-direction: $fd;
-    justify-content: $jc;
-    align-items: $ai;
+	display: flex;
+	flex-direction: $fd;
+	justify-content: $jc;
+	align-items: $ai;
 }
+
+$body-bg: #333d47;
+$body-color: #fff;
+$theme-colors: (
+    "primary": #62A60A,
+    "secondary": #007197
+);
+$enable-transitions: true;
+$enable-rounded: true;
+$enable-shadows: true;
 
 
 * {
-    box-sizing: border-box;
+	box-sizing: border-box;
 }
 
-body {
-    background-color: #333d47;
-}
+
 
 .login {
-    @include flex();
-    width: 100vw;
-    height: 100vh;
-    img {
-        width: 250px;
-        height: auto;
-        margin-bottom: 20px;
+	@include flex();
+	width: 100vw;
+	height: 100vh;
+	img {
+		width: 250px;
+		height: auto;
+		margin-bottom: 20px;
+	}
+	form {
+		@include flex();
+	}
+	.login-field {
+		background: none;
+		color: white;
     }
-    .loginformgroup {
-        margin: 10px;
-    }
-    form {
-        @include flex();
+    .login-field::active {
+        background: none;
+        color: white;
     }
 }
+
+main {
+	margin-top: 64px;
+}
+
+.ticket {
+	background-color: gray;
+	border-radius: 10px;
+}
+
+@import '~bootstrap/scss/bootstrap';

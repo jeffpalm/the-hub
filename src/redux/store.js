@@ -1,5 +1,8 @@
-import { createStore, applyMiddleware } from 'redux'
+import { createStore, combineReducers } from 'redux'
 import authReducer from './authReducer'
-import promiseMiddleware from 'redux-promise-middleware'
 
-export default createStore(authReducer, applyMiddleware(promiseMiddleware))
+const rootReducer = combineReducers({
+	authReducer
+})
+
+export default createStore(rootReducer)

@@ -1,12 +1,10 @@
-import axios from 'axios'
-
 const initialState = {
 	user: {},
-	isLoading: false
+	isAuthenticated: false
 }
 
 const LOGIN_USER = 'LOGIN_USER'
-const GET_USER = 'GET_USER'
+const USER_TO_REDUX = 'USER_TO_REDUX'
 
 export function loginUser(user) {
 	return {
@@ -15,24 +13,19 @@ export function loginUser(user) {
 	}
 }
 
-export const getUser = () => {
-	const res = axios.get('/auth/user')
+export const userToRedux = user => {
 	return {
-		type: GET_USER,
-		payload: res.data
+		type: USER_TO_REDUX,
+		payload: user
 	}
 }
 
 export default function (state = initialState, action) {
 	switch (action.type) {
-		case GET_USER + '_PENDING':
-			return { ...state, isLoading: true }
-		case GET_USER + '_REJECTED':
-			return initialState
-		case GET_USER + '_FULFILLED':
-			return { ...state, isLoading: false, user: action.payload }
+		case USER_TO_REDUX:
+			return { ...state, user: action.payload, isAuthenticated: true }
 		case LOGIN_USER:
-			return { ...state, user: action.payload }
+			return { ...state, user: action.payload, isAuthenticated: true }
 		default:
 			return initialState
 	}

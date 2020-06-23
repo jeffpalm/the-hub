@@ -1,8 +1,11 @@
 import React, { useState } from 'react'
-import { TextField, FormGroup, Button } from '@material-ui/core'
+import Form from 'react-bootstrap/Form'
+import Button from 'react-bootstrap/Button'
 import { connect } from 'react-redux'
 import { loginUser } from '../../redux/authReducer'
+import { ToastContainer, toast } from 'react-toastify'
 import axios from 'axios'
+import 'react-toastify/dist/ReactToastify.css'
 
 const Login = props => {
 	const [email, setEmail] = useState('')
@@ -13,36 +16,44 @@ const Login = props => {
 		axios
 			.post('/auth/login', { email, password })
 			.then(res => {
-				props.history.push('/hub')
 				props.loginUser(res.data)
+				props.history.push('/home')
 			})
-			.catch(err => console.log(err))
+			.catch(err => {
+				console.log(err)
+				toast.error('Invalid User or Password')
+			})
 	}
 
 	return (
 		<div className='login'>
 			<img src='/assets/img/The_Hub.png' alt='Hub logo' />
-			<form onSubmit={login}>
-				<FormGroup className='loginformgroup'>
-					<TextField
-						label='Email'
-						variant='outlined'
+			<Form onSubmit={login}>
+				<Form.Group>
+					<Form.Control
+						className='login-field'
+						size='sm'
+						placeholder='Email'
+						value={email}
 						autoFocus
 						onChange={e => setEmail(e.target.value)}
 					/>
-				</FormGroup>
-				<FormGroup className='loginformgroup'>
-					<TextField
-						label='Password'
-						variant='outlined'
+				</Form.Group>
+				<Form.Group>
+					<Form.Control
+						className='login-field'
+						size='sm'
+						placeholder='Password'
+						value={password}
 						type='password'
 						onChange={e => setPassword(e.target.value)}
 					/>
-				</FormGroup>
+				</Form.Group>
 				<Button variant='outlined' type='submit'>
 					Login
 				</Button>
-			</form>
+			</Form>
+			<ToastContainer />
 		</div>
 	)
 }

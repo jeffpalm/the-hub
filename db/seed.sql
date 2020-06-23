@@ -384,7 +384,7 @@ CREATE TABLE "vehicles" (
   "model" varchar(100),
   "trim" varchar(100),
   "color" varchar(100),
-  "ticketCount" int
+  "ticket_count" int
 );
 
 ALTER TABLE "users" ADD FOREIGN KEY ("created_by") REFERENCES "users" ("id");
@@ -419,7 +419,7 @@ ALTER TABLE "tickets" ADD FOREIGN KEY ("manager_id") REFERENCES "users" ("id");
 
 ALTER TABLE "tickets" ADD FOREIGN KEY ("ticket_type") REFERENCES "ticket_type" ("id");
 
-ALTER TABLE "tickets" ADD FOREIGN KEY ("current_status") REFERENCES "ticket_settings" ("id");
+ALTER TABLE "tickets" ADD FOREIGN KEY ("current_status") REFERENCES "ticket_status" ("id");
 
 ALTER TABLE "tickets" ADD FOREIGN KEY ("vin") REFERENCES "vehicles" ("vin");
 
@@ -571,7 +571,16 @@ COMMENT ON COLUMN "delivery_queue_type"."manager_group" IS 'User group that will
 
 COMMENT ON TABLE "vehicles" IS 'As VINs are decoded, this table will populate to minimize API calls';
 
-
+create view all_tickets
+as
+select t.id, g.name as guest, concat(s.first, ' ', s.last) as sales, concat(m.first, ' ', m.last) as manager, tt.name as ticketType, ts.name as ticketStatus, t.vin, t.created, t.last_update as lastUpdate, t.closed, t.showroom, t.appointment
+from
+tickets as t
+join users as s on t.sales_id = s.id
+join users as m on t.manager_id = m.id
+join guests as g on t.guest_id = g.id
+join ticket_type as tt on t.ticket_type = tt.id
+join ticket_status as ts on t.current_status = ts.id;
 
 INSERT INTO ticket_type (name) VALUES ('Finance');
 INSERT INTO ticket_type (name) VALUES ('Cash');
