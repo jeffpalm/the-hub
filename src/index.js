@@ -8,6 +8,8 @@ import { createMuiTheme } from '@material-ui/core/styles'
 import { ThemeProvider as MuiThemeProvider } from '@material-ui/core/styles'
 import * as serviceWorker from './serviceWorker'
 import CssBaseline from '@material-ui/core/CssBaseline'
+import { MuiPickersUtilsProvider } from '@material-ui/pickers'
+import MomentUtils from '@date-io/moment'
 
 const theme = createMuiTheme({
 	palette: {
@@ -31,12 +33,14 @@ const theme = createMuiTheme({
 ReactDOM.render(
 	<React.StrictMode>
 		<MuiThemeProvider theme={theme}>
-			<Provider store={store}>
-				<HashRouter>
-					<CssBaseline />
-					<App />
-				</HashRouter>
-			</Provider>
+			<MuiPickersUtilsProvider utils={MomentUtils}>
+				<Provider store={store}>
+					<HashRouter>
+						<CssBaseline />
+						<App />
+					</HashRouter>
+				</Provider>
+			</MuiPickersUtilsProvider>
 		</MuiThemeProvider>
 	</React.StrictMode>,
 	document.getElementById('root')

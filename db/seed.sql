@@ -35,6 +35,12 @@ DROP TYPE IF EXISTS "input_types" CASCADE;
 DROP TYPE IF EXISTS "deal_type" CASCADE;
 DROP TYPE IF EXISTS "assignment_type" CASCADE;
 
+CREATE TYPE "field_types" AS ENUM (
+  'text',
+  'number',
+  'list',
+  'date'
+)
 
 CREATE TYPE "ticket_history_type" AS ENUM (
   'message',
@@ -231,6 +237,13 @@ CREATE TABLE "ticket_field_type" (
   "id" serial PRIMARY KEY,
   "name" varchar(50),
   "description" varchar(500),
+  "field_type" field_type,
+  "is_validated" boolean,
+  "select_multiple" boolean,
+  "required" boolean,
+  "valid_options" text[],
+  "default_option" text,
+  "regex" text,
   "ticket_type" int DEFAULT 0,
   "created" timestamptz(2) DEFAULT (now()),
   "created_by" int
@@ -573,11 +586,12 @@ COMMENT ON TABLE "vehicles" IS 'As VINs are decoded, this table will populate to
 
 create view all_tickets
 as
-select t.id, g.name as guest, concat(s.first, ' ', s.last) as sales, concat(m.first, ' ', m.last) as manager, tt.name as ticketType, ts.name as ticketStatus, t.vin, t.created, t.last_update as lastUpdate, t.closed, t.showroom, t.appointment
+select t.id, g.name as guest, g.id as guest_id, concat(s.first, ' ', s.last) as sales, s.id as sales_id, concat(m.first, ' ', m.last) as manager, m.id as manager_id, tt.name as type, tt.id as type_id, ts.name as status, ts.id as status_id, t.vin, t.created, concat(c.first, ' ', c.last) as created_by, t.created_by as created_by_id, t.last_update as lastUpdate, t.closed, t.showroom, t.appointment
 from
 tickets as t
 join users as s on t.sales_id = s.id
 join users as m on t.manager_id = m.id
+join users as c on t.created_by = c.id
 join guests as g on t.guest_id = g.id
 join ticket_type as tt on t.ticket_type = tt.id
 join ticket_status as ts on t.current_status = ts.id;
@@ -612,3 +626,10 @@ insert into user_group (name, manager, admin, support, support_manager) values (
 insert into user_group (name, manager, admin, support, support_manager) values ('Finance Manager', true, false, false, false);
 
 insert into users (email, first) values ('jeff@palmytree.com', 'SuperAdmin');
+
+insert into ticket_field_type (name, description, ticket_type, type, is_validated, valid_options, regex, created_by) values ('Down Payment', 'Max down payment guest has available right now', 1, 'number', false, null, null, 2);
+insert into ticket_field_type (name, description, ticket_type, type, is_validated, valid_options, regex, created_by) values ('Monthly Payment', 'Monthly payment the guest is anticipating/expecting', 1, 'number', false, null, null, 2);
+insert into ticket_field_type (name, description, ticket_type, type, is_validated, valid_options, regex, created_by) values ('Drafting Instructions', 'EG has confirmed the Guest is able to provide a Certified Check', 3, 'list', true, '{"Yes","No"}', null, 2);
+insert into ticket_field_type (name, description, ticket_type, type, is_validated, valid_options, regex, created_by, default_option) values ('Registration State', 'Which state is will the guest be registering the vehicle?', 2, 'list', true, '{"AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"}', null, 2, 'TX');
+insert into ticket_field_type (name, description, ticket_type, type, is_validated, valid_options, regex, created_by, default_option) values ('Registration State', 'Which state is will the guest be registering the vehicle?', 1, 'list', true, '{"AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"}', null, 2, 'TX');
+insert into ticket_field_type (name, description, ticket_type, type, is_validated, valid_options, regex, created_by, default_option) values ('Registration State', 'Which state is will the guest be registering the vehicle?', 3, 'list', true, '{"AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"}', null, 2, 'TX');

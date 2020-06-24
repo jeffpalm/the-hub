@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import clsx from 'clsx'
-import { Link } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
+import { withRouter } from 'react-router-dom'
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
 import Button from '@material-ui/core/Button'
@@ -51,8 +51,6 @@ const Header = props => {
 		setState({ ...state, [anchor]: open })
 	}
 
-	// ! Figure Out Link in Drawer Nav
-
 	const list = anchor => (
 		<div
 			className={clsx(drawerClasses.list, {
@@ -65,8 +63,7 @@ const Header = props => {
 				<ListItem button>
 					<ListItemText
 						primary='Home'
-						ref={Link}
-						to='/home'
+						onClick={() => props.history.push('/home')}
 					/>
 				</ListItem>
 			</List>
@@ -98,4 +95,4 @@ const Header = props => {
 	)
 }
 
-export default Header
+export default withRouter(Header)

@@ -37,6 +37,7 @@ app.get('/auth/user', authController.getUser)
 
 // Ticket Endpoints
 app.get('/api/tickets', ticketController.getTickets)
+app.get('/api/ticket', ticketController.ticketInfo)
 app.get('/api/ticket/:id', ticketController.getTicket)
 app.get('/api/ticket/:id/fields', fieldController.getFields)
 app.get('/api/ticket/:id/attachments', attachController.getAttachments)
