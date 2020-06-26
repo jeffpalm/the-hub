@@ -3,13 +3,33 @@ const express = require('express'),
 	app = express(),
 	massive = require('massive'),
 	session = require('express-session'),
+	aws = require('aws-sdk'),
 	authController = require('./controllers/authController'),
 	ticketController = require('./controllers/ticketController'),
 	vehicleController = require('./controllers/vehicleController'),
 	attachController = require('./controllers/attachController'),
 	fieldController = require('./controllers/fieldController'),
 	msgController = require('./controllers/msgController'),
+	mgrController = require('./controllers/mgrController'),
 	{ SERVER_PORT, CONNECTION_STRING, SESSION_SECRET } = process.env
+
+const awsTest = async () => {
+	try {
+		aws.config.setPromisesDependency()
+		const s3 = new aws.S3()
+		const response = await s3
+			.listObjectsV2({
+				Bucket: 'the-hub-development-27ada4be-f93c-4480-920d-21fc583879a1'
+			})
+			.promise()
+		console.log(response)
+		debugger
+	} catch (err) {
+		console.log(err)
+	}
+}
+
+awsTest()
 
 app.use(express.json())
 app.use(
@@ -44,15 +64,18 @@ app.get('/api/ticket/:id/attachments', attachController.getAttachments)
 app.post('/api/ticket', ticketController.createTicket)
 
 // Vehicle Endpoints
-app.post('/api/vehicle', vehicleController)
+app.post('/api/vehicle', vehicleController.newVehicle)
 
 // Message Enpoints
 app.get('/api/ticket/:id/messages', msgController.getMessages)
 app.post('/api/ticket/:id/message', msgController.createMessage)
 
+// Manager Endpoints
+app.get('/api/managers/available', mgrController.availableMgrs)
+
 // Utility Endpoints
 app.get('/api/user/:id', async (req, res) => {
-	const {id} = req.params,
+	const { id } = req.params,
 		db = req.app.get('db'),
 		user = await db.users.findOne(id)
 

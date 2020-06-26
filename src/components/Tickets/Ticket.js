@@ -12,6 +12,8 @@ import FormControlLabel from '@material-ui/core/FormControlLabel'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import Container from '@material-ui/core/Container'
+import { ToastContainer, toast } from 'react-toastify'
+import copy from 'copy-to-clipboard'
 
 const useStylesTextField = makeStyles(theme => ({
 	root: {
@@ -83,6 +85,11 @@ const Ticket = props => {
 			})
 	}
 
+	const copyToClipboard = text => {
+		copy(text)
+		toast.success(`${text} Copied!`, { position: 'bottom-left' })
+	}
+
 	useEffect(() => {
 		axios.get(`/api/ticket/${ticketid}`).then(res => {
 			setTicket(res.data)
@@ -106,6 +113,7 @@ const Ticket = props => {
 			style={{
 				marginTop: '20px'
 			}}>
+			<ToastContainer autoClose={3000} />
 			<Grid
 				container
 				direction='column'
@@ -122,14 +130,34 @@ const Ticket = props => {
 										<ListItem>
 											<ListItemText primary={guest.name} secondary='Guest' />
 										</ListItem>
-										<ListItem>
-											<ListItemText primary={guest.phone} />
+										<ListItem
+											button
+											onClick={() => {
+												copyToClipboard(guest.phone)
+											}}>
+											<ListItemText
+												primary={guest.phone}
+												secondary='Guest Phone'
+											/>
 										</ListItem>
 										{cosigner.id ? (
 											<>
-												<h3>Cosigner</h3>
-												<h4>{cosigner.name}</h4>
-												<h4>{cosigner.phone}</h4>
+												<ListItem>
+													<ListItemText
+														primary={cosigner.name}
+														secondary='Co-Signer Name'
+													/>
+												</ListItem>
+												<ListItem
+													button
+													onClick={() => {
+														copyToClipboard(cosigner.phone)
+													}}>
+													<ListItemText
+														primary={cosigner.phone}
+														secondary='Co-Signer Phone'
+													/>
+												</ListItem>
 											</>
 										) : null}
 									</List>
@@ -144,9 +172,28 @@ const Ticket = props => {
 												primary={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
 											/>
 										</ListItem>
-										<ListItem>
+										<ListItem
+											button
+											onClick={() => {
+												copyToClipboard(vehicle.vin)
+											}}>
 											<ListItemText primary={vehicle.vin} secondary='VIN' />
 										</ListItem>
+									</List>
+								</Paper>
+							</Grid>
+							<Grid item>
+								<Paper>
+									<List>
+										<ListSubheader>App Fields</ListSubheader>
+										{fields.map(f => (
+											<ListItem key={f.id}>
+												<ListItemText
+													primary={f.content}
+													secondary={f.field_name}
+												/>
+											</ListItem>
+										))}
 									</List>
 								</Paper>
 							</Grid>
@@ -203,13 +250,11 @@ const Ticket = props => {
 										secondary='Finance Manager'
 									/>
 								</ListItem>
-								{fields.map(f => {
-									return <ListItem>{f.name}</ListItem>
-								})}
 							</List>
 						</Paper>
 					</Grid>
 				</Grid>
+
 				<Grid item>
 					<Paper sm={2} xs={1}>
 						<List>
@@ -217,13 +262,14 @@ const Ticket = props => {
 							{attachments.map(a => {
 								return (
 									<ListItem key={a.id}>
-										<ListItemText primary='An Attachment' secondary={a.name} />
+										<ListItemText primary={a.filepath} secondary={a.name} />
 									</ListItem>
 								)
 							})}
 						</List>
 					</Paper>
 				</Grid>
+
 				<Grid item>
 					<Paper>
 						<List>

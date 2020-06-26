@@ -206,6 +206,7 @@ CREATE TABLE "ticket_status" (
   "name" varchar(50),
   "new_ticket" bool,
   "accepted" bool,
+  "active" bool,
   "delivery_ready" bool,
   "closed" bool,
   "created" timestamptz(2) DEFAULT (now()),
@@ -584,7 +585,7 @@ COMMENT ON COLUMN "delivery_queue_type"."manager_group" IS 'User group that will
 
 COMMENT ON TABLE "vehicles" IS 'As VINs are decoded, this table will populate to minimize API calls';
 
-create view all_tickets
+create materialized view all_tickets
 as
 select t.id, g.name as guest, g.id as guest_id, concat(s.first, ' ', s.last) as sales, s.id as sales_id, concat(m.first, ' ', m.last) as manager, m.id as manager_id, tt.name as type, tt.id as type_id, ts.name as status, ts.id as status_id, t.vin, t.created, concat(c.first, ' ', c.last) as created_by, t.created_by as created_by_id, t.last_update as lastUpdate, t.closed, t.showroom, t.appointment
 from
@@ -595,6 +596,17 @@ join users as c on t.created_by = c.id
 join guests as g on t.guest_id = g.id
 join ticket_type as tt on t.ticket_type = tt.id
 join ticket_status as ts on t.current_status = ts.id;
+
+create materialized view available_managers
+as
+select u.id as manager_id, concat(u.first,' ', u.last) as name, u.email, u.phone, u.available, ug.id as group_id, ug.name as group_name, sum(case when ts.active = true then tt.weight else 0 end) as active_count, sum(tt.weight) as total_count
+from tickets as t
+join users as u on t.manager_id = u.id
+join user_group as ug on u.user_group = ug.id
+join ticket_status as ts on t.current_status = ts.id
+join ticket_type as tt on t.ticket_type = tt.id
+where ug.manager = true and u.available = true
+group by u.id, u.first, u.last, u.email, u.phone, u.available, ug.id, ug.name;
 
 INSERT INTO ticket_type (name) VALUES ('Finance');
 INSERT INTO ticket_type (name) VALUES ('Cash');

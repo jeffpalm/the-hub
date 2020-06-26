@@ -2,7 +2,7 @@ module.exports = {
 	getAttachments: async (req, res) => {
 		const { id } = req.params,
 			db = req.app.get('db'),
-			attachments = await db.ticket_attachments.find({ ticket_id: id })
+			attachments = await db.get_ticket_attachments(id)
 
 		res.status(200).send(attachments)
 	},

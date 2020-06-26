@@ -10,7 +10,7 @@ import CardMedia from '@material-ui/core/CardMedia'
 import TextField from '@material-ui/core/TextField'
 import axios from 'axios'
 import Grid from '@material-ui/core/Grid'
-import 'react-toastify/dist/ReactToastify.css'
+
 
 const useStyles = makeStyles(theme => ({
 	root: {

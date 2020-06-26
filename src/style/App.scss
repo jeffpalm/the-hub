@@ -5,52 +5,20 @@
 	align-items: $ai;
 }
 
-$body-bg: #333d47;
-$body-color: #fff;
-$theme-colors: (
-    "primary": #62A60A,
-    "secondary": #007197
-);
-$enable-transitions: true;
-$enable-rounded: true;
-$enable-shadows: true;
+// .MuiInputLabel-shrink {
+// 	transform: translate(0px, 2px) scale(0.75) !important;
+// 	transform-origin: center !important;
+// }
 
-
-* {
-	box-sizing: border-box;
+.PrivateNotchedOutline-legendLabelled-13 {
+	text-align: center !important;
 }
 
-
-
-.login {
-	@include flex();
-	width: 100vw;
-	height: 100vh;
-	img {
-		width: 250px;
-		height: auto;
-		margin-bottom: 20px;
-	}
-	form {
-		@include flex();
-	}
-	.login-field {
-		background: none;
-		color: white;
-    }
-    .login-field::active {
-        background: none;
-        color: white;
-    }
+.PrivateNotchedOutline-legendLabelled-12 {
+	text-align: center !important;
+}
+.PrivateNotchedOutline-legendLabelled-11 {
+	text-align: center !important;
 }
 
-main {
-	margin-top: 64px;
-}
-
-.ticket {
-	background-color: gray;
-	border-radius: 10px;
-}
-
-@import '~bootstrap/scss/bootstrap';
+@import './scss/main.scss'

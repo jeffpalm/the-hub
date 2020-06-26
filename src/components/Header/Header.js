@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import clsx from 'clsx'
 import { makeStyles } from '@material-ui/core/styles'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
 import Button from '@material-ui/core/Button'
@@ -39,6 +39,12 @@ const Header = props => {
 	const classes = useStyles()
 	const drawerClasses = drawerStyles()
 	const anchor = 'left'
+
+	const ForwardedLink = React.forwardRef((props, ref) => (
+		<Link ref={ref} {...props}>
+			{props.children}
+		</Link>
+	))
 
 	const toggleDrawer = (anchor, open) => event => {
 		if (
@@ -82,7 +88,9 @@ const Header = props => {
 						onClick={toggleDrawer(anchor, true)}>
 						<MenuIcon />
 					</IconButton>
-					<Button color='inherit'>Login</Button>
+					<Button color='inherit' component={ForwardedLink} to='/home'>
+						Home
+					</Button>
 				</Toolbar>
 			</AppBar>
 			<Drawer

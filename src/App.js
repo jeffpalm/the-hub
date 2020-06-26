@@ -5,7 +5,6 @@ import Header from './components/Header/Header'
 import { connect } from 'react-redux'
 import { userToRedux } from './redux/authReducer'
 import { withRouter } from 'react-router-dom'
-import './style/reset.css'
 
 
 const App = props => {

@@ -21,5 +21,17 @@ module.exports = {
 		res.status(200).send(newMessage)
 	},
 	editMessage: async (req, res) => {},
-	deleteMessage: async (req, res) => {}
+	deleteMessage: async (req, res) => {},
+	newTicketMessage: async (message, ticket_id, created_by, req) => {
+		const db = req.app.get('db')
+
+		const newMessage = await db.ticket_msgs.insert({
+			ticket_id,
+			created_by,
+			private: false,
+			message
+		})
+
+		return newMessage
+	}
 }

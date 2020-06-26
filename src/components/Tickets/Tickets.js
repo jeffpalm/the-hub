@@ -33,8 +33,8 @@ const Tickets = props => {
 		{ title: 'Guest', field: 'guest' },
 		{ title: 'EG', field: 'sales' },
 		{ title: 'Finance', field: 'manager' },
-		{ title: 'Type', field: 'tickettype' },
-		{ title: 'Status', field: 'ticketstatus' },
+		{ title: 'Type', field: 'type' },
+		{ title: 'Status', field: 'status' },
 		{ title: 'VIN', field: 'vin' },
 		{ title: 'Created', field: 'created' },
 		{ title: 'Last update', field: 'lastupdate' }
@@ -52,7 +52,15 @@ const Tickets = props => {
 
 	useEffect(() => {
 		axios.get('/api/tickets').then(res => {
-			setTickets(res.data)
+			setTickets(res.data.map(t => {
+				return {
+					...t,
+					created: new Date(t.created).toLocaleString(),
+					lastupdate: t.lastupdate
+						? new Date(t.lastupdate).toLocaleString()
+						: null
+				}
+			}))
 		})
 	}, [])
 	return (
@@ -63,15 +71,7 @@ const Tickets = props => {
 				}}
 				title='All Tickets'
 				columns={columns}
-				data={tickets.map(t => {
-					return {
-						...t,
-						created: new Date(t.created).toLocaleString(),
-						lastupdate: t.lastupdate
-							? new Date(t.lastupdate).toLocaleString()
-							: null
-					}
-				})}
+				data={tickets}
 				onRowClick={(e, rowData) => {
 					props.history.push(`/ticket/${rowData.id}`)
 				}}

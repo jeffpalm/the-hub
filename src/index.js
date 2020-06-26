@@ -4,14 +4,17 @@ import App from './App'
 import { HashRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import store from './redux/store'
-import { createMuiTheme } from '@material-ui/core/styles'
+import { unstable_createMuiStrictModeTheme } from '@material-ui/core/styles'
 import { ThemeProvider as MuiThemeProvider } from '@material-ui/core/styles'
 import * as serviceWorker from './serviceWorker'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import { MuiPickersUtilsProvider } from '@material-ui/pickers'
 import MomentUtils from '@date-io/moment'
+// import './style/reset.css'
+import './style/App.scss'
 
-const theme = createMuiTheme({
+const theme = unstable_createMuiStrictModeTheme({
+	spacing: 8,
 	palette: {
 		primary: { main: '#62A60A' },
 		type: 'dark',
@@ -25,6 +28,29 @@ const theme = createMuiTheme({
 				body: {
 					background: '#303030'
 				}
+			}
+		},
+		MuiInputLabel: {
+			outlined: {
+				transform: 'translate(0px, 25px) scale(1)',
+				transformOrigin: 'center',
+				'&.MuiInputLabel-shrink': {
+					transform: 'translate(0px, 2px) scale(0.75)'
+				}
+			},
+			shrink: {
+				transformOrigin: 'center'
+			},
+			animated: {
+				transition: 'transform linear 50ms'
+			}
+		}
+	},
+	props: {
+		MuiInputLabel: {
+			style: {
+				textAlign: 'center',
+				width: '100%'
 			}
 		}
 	}
