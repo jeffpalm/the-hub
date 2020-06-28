@@ -4,100 +4,133 @@ import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
 import MaterialTable from 'material-table'
 import { makeStyles } from '@material-ui/core/styles'
-import SpeedDial from '@material-ui/lab/SpeedDial'
-import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon'
-import SpeedDialAction from '@material-ui/lab/SpeedDialAction'
-import AddCircleOutlineRoundedIcon from '@material-ui/icons/AddCircleOutlineRounded'
+import Fab from '@material-ui/core/Fab'
+import Tooltip from '@material-ui/core/Tooltip'
+import AddIcon from '@material-ui/icons/Add'
 
 const useStyles = makeStyles(theme => ({
-	speedDial: {
-		position: 'absolute',
-		'&.MuiSpeedDial-directionUp, &.MuiSpeedDial-directionLeft': {
-			bottom: theme.spacing(2),
-			right: theme.spacing(2)
-		},
-		'&.MuiSpeedDial-directionDown, &.MuiSpeedDial-directionRight': {
-			top: theme.spacing(2),
-			left: theme.spacing(2)
-		}
+	fab: {
+		position: 'fixed',
+		bottom: 10,
+		right: 10
 	}
 }))
 
 const Tickets = props => {
 	const classes = useStyles()
 	const [tickets, setTickets] = useState([])
-	const [open, setOpen] = useState(false)
+	const [isLoading, setIsLoading] = useState(true)
 
 	const columns = [
-		{ title: 'ID', field: 'id' },
-		{ title: 'Guest', field: 'guest' },
-		{ title: 'EG', field: 'sales' },
-		{ title: 'Finance', field: 'manager' },
-		{ title: 'Type', field: 'type' },
-		{ title: 'Status', field: 'status' },
-		{ title: 'VIN', field: 'vin' },
-		{ title: 'Created', field: 'created' },
-		{ title: 'Last update', field: 'lastupdate' }
+		{
+			title: 'ID',
+			field: 'id',
+			filtering: false,
+			searchable: false
+		},
+		{
+			title: 'Guest',
+			field: 'guest',
+			filtering: true,
+			searchable: true
+		},
+		{
+			title: 'EG',
+			field: 'sales',
+			filtering: true,
+			searchable: true
+		},
+		{
+			title: 'Finance',
+			field: 'manager',
+			filtering: true,
+			searchable: true
+		},
+		{
+			title: 'Type',
+			field: 'type',
+			filtering: true,
+			searchable: false,
+			lookup: {Finance: 'Finance', OSF: 'OSF', Cash: 'Cash'}
+		},
+		{
+			title: 'Status',
+			field: 'status',
+			filtering: true,
+			searchable: false
+		},
+		{
+			title: 'VIN',
+			field: 'vin',
+			filtering: false,
+			searchable: true
+		},
+		{
+			title: 'Created',
+			field: 'created',
+			type: 'date',
+			filtering: true,
+			searchable: false
+		},
+		{
+			title: 'Last update',
+			field: 'lastupdate',
+			type: 'date',
+			filtering: true,
+			searchable: false
+		}
 	]
-
-	const actions = [{ icon: <AddCircleOutlineRoundedIcon />, name: 'New Ticket' , clickAction: () => props.history.push('/new')}]
-
-	const handleOpen = () => {
-		setOpen(true)
-	}
-
-	const handleClose = () => {
-		setOpen(false)
-	}
 
 	useEffect(() => {
 		axios.get('/api/tickets').then(res => {
-			setTickets(res.data.map(t => {
-				return {
-					...t,
-					created: new Date(t.created).toLocaleString(),
-					lastupdate: t.lastupdate
-						? new Date(t.lastupdate).toLocaleString()
-						: null
-				}
-			}))
+			setTickets(
+				res.data.map(t => {
+					setIsLoading(false)
+					return {
+						...t,
+						created: new Date(t.created).toLocaleString(),
+						lastupdate: t.lastupdate
+							? new Date(t.lastupdate).toLocaleString()
+							: null
+					}
+				})
+			)
 		})
 	}, [])
+
 	return (
 		<div>
 			<MaterialTable
+				onRowClick={(e, rowData) => {
+					props.history.push(`/ticket/${rowData.id}`)
+				}}
+				isLoading={isLoading}
 				style={{
 					margin: '20px'
 				}}
 				title='All Tickets'
 				columns={columns}
 				data={tickets}
-				onRowClick={(e, rowData) => {
-					props.history.push(`/ticket/${rowData.id}`)
+				options={{
+					pageSize: 20,
+					paginationType: 'stepped',
+					filtering: true,
+					searchFieldVariant: 'outlined'
 				}}
 			/>
-			<SpeedDial
-				icon={<SpeedDialIcon />}
-				className={classes.speedDial}
-				ariaLabel='SpeedDial'
-				direction='up'
-				onClose={handleClose}
-				onOpen={handleOpen}
-				open={open}>
-				{actions.map(a => (
-					<SpeedDialAction
-						key={a.name}
-						icon={a.icon}
-						tooltipTitle={a.name}
-						tooltipOpen
-						onClick={a.clickAction}
-					/>
-				))}
-			</SpeedDial>
+			<Tooltip title='New Ticket' placement='left-start'>
+				<Fab
+					className={classes.fab}
+					color='primary'
+					onClick={() => props.history.push('/new')}
+				>
+					<AddIcon />
+				</Fab>
+			</Tooltip>
 		</div>
 	)
 }
 
-const mapStateToProps = state => state.authReducer
+const mapStateToProps = state => state.auth
 
 export default connect(mapStateToProps)(withRouter(Tickets))

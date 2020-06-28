@@ -1,6 +1,6 @@
 const { newTicketVehicle } = require('./vehicleController')
 const { newTicketMessage } = require('./msgController')
-const { handleTicketAssignment } = require('./mgrController')
+const { handleTicketAssignment } = require('./employeeController')
 
 module.exports = {
 	getTickets: async (req, res) => {
@@ -234,34 +234,5 @@ module.exports = {
 		res.status(200).send(output)
 	},
 	updateTicket: async (req, res) => {},
-	deleteTicket: async (req, res) => {},
-	ticketInfo: async (req, res) => {
-		const db = req.app.get('db'),
-			output = {}
-
-		if (req.query) {
-			for (let q in req.query) {
-				switch (q) {
-					case 'statuses':
-						output.statuses = await db.get_ticket_statuses()
-						break
-					case 'types':
-						output.types = await db.get_ticket_types()
-						break
-					case 'field-types':
-						output.fieldTypes = await db.get_ticket_field_types()
-						break
-					case 'attachment-types':
-						output.attachmentTypes = await db.get_ticket_attachment_types()
-						break
-					default:
-						output.unknownQueries = output.unknownQueries
-							? [...output.unknownQueries, q]
-							: [q]
-				}
-			}
-		}
-
-		res.status(200).send(output)
-	}
+	deleteTicket: async (req, res) => {}
 }

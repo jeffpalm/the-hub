@@ -35,14 +35,14 @@ const theme = unstable_createMuiStrictModeTheme({
 				transform: 'translate(0px, 25px) scale(1)',
 				transformOrigin: 'center',
 				'&.MuiInputLabel-shrink': {
-					transform: 'translate(0px, 2px) scale(0.75)'
+					transform: 'translate(0px, 0px) scale(0.75)'
 				}
 			},
 			shrink: {
 				transformOrigin: 'center'
 			},
 			animated: {
-				transition: 'transform linear 50ms'
+				transition: 'transform linear 100ms'
 			}
 		}
 	},

@@ -1,8 +1,9 @@
-import { createStore, combineReducers } from 'redux'
-import authReducer from './authReducer'
+import { createStore, applyMiddleware } from 'redux'
+import { composeWithDevTools } from 'redux-devtools-extension'
+import promiseMiddleware from 'redux-promise-middleware'
+import rootReducer from './reducers'
 
-const rootReducer = combineReducers({
-	authReducer
-})
-
-export default createStore(rootReducer)
+export default createStore(
+	rootReducer,
+	composeWithDevTools(applyMiddleware(promiseMiddleware))
+)

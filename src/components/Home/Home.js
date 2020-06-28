@@ -11,6 +11,6 @@ const Hub = props => {
 	)
 }
 
-const mapStateToProps = state => state
+const mapStateToProps = state => state.auth
 
 export default connect(mapStateToProps)(Hub)

@@ -4,25 +4,30 @@ import { makeStyles } from '@material-ui/core/styles'
 import axios from 'axios'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
-// import Card from '@material-ui/core/Card'
-// import OutlinedInput from '@material-ui/core/OutlinedInput'
-// import FormControl from '@material-ui/core/FormControl'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import FormLabel from '@material-ui/core/FormLabel'
 import Button from '@material-ui/core/Button'
 import Radio from '@material-ui/core/Radio'
-// import RadioGroup from '@material-ui/core/RadioGroup'
-// import Switch from '@material-ui/core/Switch'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemText from '@material-ui/core/ListItemText'
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
+import ListItemIcon from '@material-ui/core/ListItemAvatar'
 import { DateTimePicker } from 'formik-material-ui-pickers'
 import { Formik, Form, Field } from 'formik'
 import { TextField, Switch, RadioGroup } from 'formik-material-ui'
 import UpperCasingTextField from './custom/UpperCasingTextField'
+import CustomDropzone from './custom/CustomDropzone'
+import IconButton from '@material-ui/core/IconButton'
+import AttachFileOutlined from '@material-ui/icons/AttachFileOutlined'
+import DeleteIcon from '@material-ui/icons/Delete'
 import * as Yup from 'yup'
 
 const useStyles = makeStyles(theme => ({
 	root: {
 		padding: 20,
-		flexGrow: 1
+		flexGrow: 1,
+		marginTop: 60
 	},
 	form: {
 		padding: theme.spacing(1)
@@ -35,6 +40,29 @@ const useStyles = makeStyles(theme => ({
 		'& input': {
 			textAlign: 'center'
 		}
+	},
+	dropzone: {
+		width: '90%',
+		minHeight: 100,
+		backgroundColor: 'hsla(0, 100%, 100%, 0.1)',
+		borderRadius: 4,
+		display: 'flex',
+		flexDirection: 'column',
+		justifyContent: 'center',
+		alignItems: 'center',
+		color: 'darkgrey',
+		zIndex: 1,
+		'&:hover': {
+			color: 'hsla(0, 100%, 100%, 0.5)',
+			boxShadow: '0 0 10px 0 hsla(0, 100%, 100%, 0.5)',
+			cursor: 'pointer'
+		}
+	},
+	dropzoneList: {
+		width: '90%',
+		backgroundColor: 'hsla(0, 100%, 100%, 0.1)',
+		borderRadius: 4,
+		marginTop: 10
 	}
 }))
 
@@ -44,7 +72,7 @@ const NewTicket = props => {
 	const [ticketSettings, setTicketSettings] = useState({})
 
 	useEffect(() => {
-		axios.get('api/ticket?statuses&types&attachment-types').then(res => {
+		axios.get('api/settings/ticket').then(res => {
 			setTicketSettings(res.data)
 		})
 	}, [])
@@ -65,7 +93,8 @@ const NewTicket = props => {
 					isCosigner: false,
 					cosignerName: '',
 					cosignerPhone: '',
-					attachments: []
+					attachments: [],
+					fields: []
 				}}
 				validationSchema={Yup.object({
 					guestName: Yup.string().required('Guest Name Required'),
@@ -86,10 +115,10 @@ const NewTicket = props => {
 					type: Yup.number().required('Please select deal type')
 				})}
 				onSubmit={(values, { setSubmitting }) => {
-					values.guestPhone = values.guestPhone.replace(/[() -]/g, '')
+					setSubmitting(true)
 					const {
 						sales_id,
-						type,
+						type: ticket_type,
 						message,
 						vin,
 						showroom,
@@ -98,24 +127,35 @@ const NewTicket = props => {
 						guestPhone,
 						cosignerName,
 						cosignerPhone,
-						attachments
+						attachments,
+						fields
 					} = values
 
 					const output = {
-						sales_id: values.sales_id,
-						ticket_type: values.type,
-						message: values.message,
+						sales_id,
+						ticket_type,
+						message,
 						vin,
-						guest,
-						cosigner,
+						guest: {
+							name: guestName,
+							phone: guestPhone.replace(/[() -]/g, '')
+						},
+						cosigner: {
+							name: cosignerName,
+							phone: cosignerPhone.replace(/[() -]/g, '')
+						},
 						showroom,
 						appointment,
-						fields,
-						attachments
+						attachments,
+						fields
 					}
+					axios.post('/api/ticket', output).then(res => {
+						setSubmitting(false)
+						props.history.push(`/ticket/${res.data.id}`)
+					})
 				}}
 			>
-				{({ values, submitForm, isSubmitting }) => (
+				{({ values, submitForm, isSubmitting, setFieldValue }) => (
 					<Form onSubmit={submitForm}>
 						<Grid
 							className={classes.form}
@@ -299,6 +339,43 @@ const NewTicket = props => {
 										justify='center'
 										alignItems='center'
 									>
+										<FormLabel className={classes.field}>Attachments</FormLabel>
+										<CustomDropzone
+											className={classes.dropzone}
+											field='attachments'
+											setValue={setFieldValue}
+											values={values}
+										/>
+										{values.attachments[0] ? (
+											<List className={classes.dropzoneList} dense>
+												{values.attachments.map((a, i) => (
+													<ListItem
+														key={i}
+														divider={
+															values.attachments.length - 1 === i ? false : true
+														}
+													>
+														<ListItemIcon>
+															<AttachFileOutlined />
+														</ListItemIcon>
+														<ListItemText primary={a.name} secondary={a.type} />
+														<ListItemSecondaryAction>
+															<IconButton edge='end'>
+																<DeleteIcon />
+															</IconButton>
+														</ListItemSecondaryAction>
+													</ListItem>
+												))}
+											</List>
+										) : null}
+									</Grid>
+									<Grid
+										item
+										container
+										direction='column'
+										justify='center'
+										alignItems='center'
+									>
 										<Button
 											className={classes.field}
 											color='primary'
@@ -321,6 +398,6 @@ const NewTicket = props => {
 	)
 }
 
-const mapStateToProps = state => state.authReducer
+const mapStateToProps = state => state.auth
 
 export default connect(mapStateToProps)(NewTicket)

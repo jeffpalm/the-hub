@@ -4,21 +4,8 @@
 	justify-content: $jc;
 	align-items: $ai;
 }
-
-// .MuiInputLabel-shrink {
-// 	transform: translate(0px, 2px) scale(0.75) !important;
-// 	transform-origin: center !important;
-// }
-
-.PrivateNotchedOutline-legendLabelled-13 {
-	text-align: center !important;
-}
-
-.PrivateNotchedOutline-legendLabelled-12 {
-	text-align: center !important;
-}
-.PrivateNotchedOutline-legendLabelled-11 {
-	text-align: center !important;
+@for $i from 1 through 100 {
+	.PrivateNotchedOutline-legendLabelled-#{$i} {text-align: center !important;}
 }
 
 @import './scss/main.scss'

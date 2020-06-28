@@ -11,14 +11,14 @@ module.exports = {
 			{ created_by, private: privateMsg, message } = req.body,
 			db = req.app.get('db')
 
-		const newMessage = await db.ticket_msgs.insert({
-			ticket_id: id,
+		const newMessages = await db.new_ticket_msg(
+			id,
 			created_by,
-			private: privateMsg,
+			privateMsg,
 			message
-		})
+		)
 
-		res.status(200).send(newMessage)
+		res.status(200).send(newMessages)
 	},
 	editMessage: async (req, res) => {},
 	deleteMessage: async (req, res) => {},
@@ -32,6 +32,15 @@ module.exports = {
 			message
 		})
 
-		return newMessage
+		db.ticket_history
+			.insert({
+				ticket_id,
+				created_by,
+				type: 'message',
+				to: message
+			})
+			.then(res => {
+				return newMessage
+			})
 	}
 }

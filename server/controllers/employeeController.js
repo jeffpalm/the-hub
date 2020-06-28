@@ -1,9 +1,27 @@
 module.exports = {
-	availableMgrs: async (req, res) => {
+	managers: async (req, res) => {
 		const db = req.app.get('db'),
-			availableMgrs = await db.available_mgrs_by_active()
+			output = {}
+			
 
-		res.status(200).send(availableMgrs)
+		if (Object.keys(req.query).length) {
+			for(let q in req.query){
+				switch(q){
+					case 'available':
+						output.available = await db.available_mgrs_by_active()
+						break
+					case 'all':
+						output.all = await db.get_all_mgrs()
+						break
+					default:
+						output.unknownQueries = output.unknownQueries
+							? [...output.unknownQueries, q]
+							: [q]
+						break
+				}
+			}
+		}
+		res.status(200).send(output)
 	},
 	handleTicketAssignment: async req => {
 		const db = req.app.get('db'),
@@ -21,12 +39,12 @@ module.exports = {
 		const leastTotal = availableMgrsByTotal.filter(
 			mgr => mgr.total_count === availableMgrsByTotal[0].total_count
 		)
-
 		if (leastTotal.length === 1) {
+
 			return availableMgrsByTotal[0]
 		}
 
-		const rand = Math.floor(Math.rand() * leastTotal.length)
+		const rand = Math.floor(Math.random() * leastTotal.length)
 
 		return availableMgrsByTotal[rand]
 	}

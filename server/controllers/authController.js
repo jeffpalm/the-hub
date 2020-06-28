@@ -108,5 +108,9 @@ module.exports = {
 		if (!req.session.user) return res.status(403).send('No user logged in')
 
 		res.status(200).send(req.session.user)
+	},
+	logout: (req, res) => {
+		req.session.destroy()
+		res.sendStatus(200)
 	}
 }

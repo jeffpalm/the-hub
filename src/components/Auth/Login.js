@@ -2,19 +2,17 @@ import React, { useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import { connect } from 'react-redux'
-import { loginUser } from '../../redux/authReducer'
+import { updateUser } from '../../redux/actions'
 import { ToastContainer, toast } from 'react-toastify'
-import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import CardMedia from '@material-ui/core/CardMedia'
 import TextField from '@material-ui/core/TextField'
 import axios from 'axios'
 import Grid from '@material-ui/core/Grid'
 
-
 const useStyles = makeStyles(theme => ({
 	root: {
-		maxWidth: 345
+		maxWidth: 375
 	},
 	media: {
 		width: 200,
@@ -30,6 +28,14 @@ const useStyles = makeStyles(theme => ({
 	login: {
 		height: '100vh',
 		width: '100vw'
+	},
+	field: {
+		padding: theme.spacing(1),
+		textAlign: 'center',
+		width: '80%',
+		'& input': {
+			textAlign: 'center'
+		}
 	}
 }))
 
@@ -44,7 +50,7 @@ const Login = props => {
 		axios
 			.post('/auth/login', { email, password })
 			.then(res => {
-				props.loginUser(res.data)
+				props.updateUser(res.data)
 				props.history.push('/home')
 			})
 			.catch(err => {
@@ -59,10 +65,14 @@ const Login = props => {
 			direction='column'
 			justify='center'
 			align='center'
-			className={classes.login}>
+			className={classes.login}
+		>
 			<Grid item>
-				<Card className={classes.root}>
-					<CardMedia image='/assets/img/The_Hub.png' className={classes.media} />
+				<Grid className={classes.root}>
+					<CardMedia
+						image='/assets/img/The_Hub.png'
+						className={classes.media}
+					/>
 					<CardContent>
 						<form className={classes.container} onSubmit={login}>
 							<Grid
@@ -70,33 +80,27 @@ const Login = props => {
 								direction='column'
 								justify='center'
 								align='center'
-								spacing={2}>
+								spacing={2}
+							>
 								<Grid item>
 									<TextField
-										variant='filled'
+										className={classes.field}
+										variant='outlined'
 										label='Email'
 										value={email}
 										type='text'
 										autoFocus
 										onChange={e => setEmail(e.target.value)}
-										inputProps={{
-											style: { textAlign: 'center' }
-										}}
 									/>
 								</Grid>
 								<Grid item>
 									<TextField
-										variant='filled'
+										className={classes.field}
+										variant='outlined'
 										label='Password'
 										value={password}
 										type='password'
 										onChange={e => setPassword(e.target.value)}
-										inputProps={{
-											style: { textAlign: 'center' }
-										}}
-										InputLabelProps={{
-											style: { textAlign: 'center' }
-										}}
 									/>
 								</Grid>
 								<Grid item>
@@ -107,13 +111,13 @@ const Login = props => {
 							</Grid>
 						</form>
 					</CardContent>
-				</Card>
+				</Grid>
 			</Grid>
 			<ToastContainer />
 		</Grid>
 	)
 }
 
-const mapStateToProps = state => state
+const mapStateToProps = state => state.auth
 
-export default connect(mapStateToProps, { loginUser })(Login)
+export default connect(mapStateToProps, { updateUser })(Login)
