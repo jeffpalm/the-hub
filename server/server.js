@@ -35,6 +35,9 @@ const express = require('express'),
 // TODO: WRITE ACTIVITY LOGGING FUNCTION
 // TODO: WRITE TICKET SEARCH ENDPOINT
 
+app.use(express.static(`${__dirname}/../build`));
+
+
 app.use(express.json())
 app.use(
 	session({
