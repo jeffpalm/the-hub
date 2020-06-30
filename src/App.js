@@ -1,5 +1,5 @@
 import React from 'react'
-import Routes from './Routes'
+import routes from './routes'
 import Header from './components/Header/Header'
 import { useLocation } from 'react-router-dom'
 
@@ -9,7 +9,7 @@ const App = props => {
 	return (
 		<>
 			{pathname === '/' ? null : <Header />}
-			{<Routes />}
+			{<routes />}
 		</>
 	)
 }
