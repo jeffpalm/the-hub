@@ -8,17 +8,12 @@ import NewTicket from './components/Tickets/NewTicket'
 
 // Check if user is in redux
 
-const Routes = props => {
-
-	return (
-		<Switch>
-			<Route exact path='/' component={Login} />
-			<ProtectedRoute path='/home' component={Home} />
-			<ProtectedRoute path='/ticket/:ticketid' component={Ticket} />
-			<ProtectedRoute path='/new' component={NewTicket} />
-			<Redirect to='/' />
-		</Switch>
-	)
-}
-
-export default Routes
+export default (
+	<Switch>
+		<Route exact path='/' component={Login} />
+		<ProtectedRoute path='/home' component={Home} />
+		<ProtectedRoute path='/ticket/:ticketid' component={Ticket} />
+		<ProtectedRoute path='/new' component={NewTicket} />
+		<Redirect to='/' />
+	</Switch>
+)

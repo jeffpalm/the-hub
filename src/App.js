@@ -9,7 +9,7 @@ const App = props => {
 	return (
 		<>
 			{pathname === '/' ? null : <Header />}
-			{<routes />}
+			{routes}
 		</>
 	)
 }

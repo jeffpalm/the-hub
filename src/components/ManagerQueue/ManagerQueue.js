@@ -10,6 +10,7 @@ import Button from '@material-ui/core/Button'
 import Card from '@material-ui/core/Card'
 import CardActions from '@material-ui/core/CardActions'
 import CardContent from '@material-ui/core/CardContent'
+import ManagerQueueCard from './ManagerQueueCard'
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -115,7 +116,6 @@ const ManagerQueue = props => {
 						variant='outlined'
 						component={Grid}
 						item
-						
 						className={classes.workStackBg}
 					>
 						<Typography align='center' variant='h3' component={Grid} item>
@@ -123,41 +123,7 @@ const ManagerQueue = props => {
 						</Typography>
 						{newTickets.map((tick, i) => (
 							<Box m={1} key={i}>
-								<Card variant='outlined' component={Grid} item>
-									<CardContent>
-										<Grid container direction='row' justify='space-between'>
-											<Typography
-												variant='h5'
-												component={Grid}
-												item
-												color='textSecondary'
-												gutterBottom
-											>
-												{tick.guest}
-											</Typography>
-											<Typography
-												component={Grid}
-												item
-												color='textSecondary'
-												gutterBottom
-											>
-												{tick.guest_phone}
-											</Typography>
-										</Grid>
-										<Typography variant='h5' component='h2'></Typography>
-										<Typography className={classes.pos} color='textSecondary'>
-											EG: {tick.sales}
-										</Typography>
-										<Typography variant='body2' component='p'>
-											well meaning and kindly.
-											<br />
-											{'"a benevolent smile"'}
-										</Typography>
-									</CardContent>
-									<CardActions>
-										<Button size='small'>Learn More</Button>
-									</CardActions>
-								</Card>
+								<ManagerQueueCard ticket={tick} />
 							</Box>
 						))}
 					</Paper>
@@ -183,41 +149,7 @@ const ManagerQueue = props => {
 						</Typography>
 						{workingTickets.map((tick, i) => (
 							<Box m={1} key={i}>
-								<Card variant='outlined' component={Grid} item>
-									<CardContent>
-										<Grid container direction='row' justify='space-between'>
-											<Typography
-												variant='h5'
-												component={Grid}
-												item
-												color='textSecondary'
-												gutterBottom
-											>
-												{tick.guest}
-											</Typography>
-											<Typography
-												component={Grid}
-												item
-												color='textSecondary'
-												gutterBottom
-											>
-												{tick.guest}
-											</Typography>
-										</Grid>
-										<Typography variant='h5' component='h2'></Typography>
-										<Typography className={classes.pos} color='textSecondary'>
-											EG: {tick.sales}
-										</Typography>
-										<Typography variant='body2' component='p'>
-											well meaning and kindly.
-											<br />
-											{'"a benevolent smile"'}
-										</Typography>
-									</CardContent>
-									<CardActions>
-										<Button size='small'>Learn More</Button>
-									</CardActions>
-								</Card>
+								<ManagerQueueCard ticket={tick} />
 							</Box>
 						))}
 					</Paper>
