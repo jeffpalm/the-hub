@@ -1,1 +1,1 @@
-select * from ticket_type;
+select * from admin_ticket_type;

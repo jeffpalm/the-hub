@@ -10,8 +10,8 @@ const express = require('express'),
 	attachController = require('./controllers/attachController'),
 	fieldController = require('./controllers/fieldController'),
 	msgController = require('./controllers/msgController'),
-	employeeController = require('./controllers/employeeController'),
-	settingsController = require('./controllers/settingsController'),
+	userController = require('./controllers/userController'),
+	configController = require('./controllers/configController'),
 	devMiddleware = require('./development/devMiddleware'),
 	devSeed = require('./development/devSeed'),
 	{ SERVER_PORT, CONNECTION_STRING, SESSION_SECRET } = process.env
@@ -32,6 +32,9 @@ const express = require('express'),
 // 	}
 // }
 
+// TODO: WRITE ACTIVITY LOGGING FUNCTION
+// TODO: WRITE TICKET SEARCH ENDPOINT
+
 app.use(express.json())
 app.use(
 	session({
@@ -41,6 +44,10 @@ app.use(
 		cookie: { maxAge: 1000 * 60 * 60 * 24 }
 	})
 )
+
+app.post('/something', (req, res, next) => {
+	console.log(req.method)
+})
 
 // * Development endpoints
 app.post('/seed', devSeed.writeSql, devSeed.seedDb)
@@ -60,34 +67,23 @@ app.get('/api/ticket/:id/fields', fieldController.getFields)
 app.get('/api/ticket/:id/attachments', attachController.getAttachments)
 app.post('/api/ticket', ticketController.createTicket)
 app.put('/api/ticket/:id', ticketController.updateTicket)
+app.get('/api/ticket/:id/messages', msgController.getMessages)
+app.post('/api/ticket/:id/message', msgController.createMessage)
 
 // * Config Endpoints
-app.get('/api/settings/ticket', settingsController.ticket)
+app.get('/api/config', configController.getConfig)
+app.get('/api/settings/ticket', configController.ticket)
+app.get('/api/users', userController.getUsers)
+app.put('/api/users/:id', userController.updateUser)
+app.get('/api/users/managers', userController.getManagers)
+app.get('/api/user/:id', configController.getUser)
 
 // * Vehicle Endpoints
 app.post('/api/vehicle', vehicleController.newVehicle)
 
-// * Message Endpoints
-app.get('/api/ticket/:id/messages', msgController.getMessages)
-app.post('/api/ticket/:id/message', msgController.createMessage)
-
-// * Employee Endpoints
-app.get('/api/employees/managers', employeeController.managers)
-
-// Utility Endpoints
-app.get('/api/user/:id', async (req, res) => {
-	const { id } = req.params,
-		db = req.app.get('db'),
-		user = await db.users.findOne(id)
-
-	delete user.password
-	delete user.activation
-
-	res.status(200).send(user)
-})
-
 massive({
 	connectionString: CONNECTION_STRING,
+	application_name: 'the-hub',
 	ssl: { rejectUnauthorized: false }
 }).then(db => {
 	app.set('db', db)

@@ -104,8 +104,28 @@ module.exports = {
 
 		res.status(200).send(req.session.user)
 	},
-	getUser: (req, res) => {
+	getUser: async (req, res) => {
 		if (!req.session.user) return res.status(403).send('No user logged in')
+		const db = req.app.get('db')
+
+		req.session.user = await db.users.findOne(
+			{
+				id: req.session.user.id
+			},
+			{
+				fields: [
+					'id',
+					'available',
+					'email',
+					'phone',
+					'name',
+					'role',
+					'last_reset',
+					'last_visit',
+					'require_reset'
+				]
+			}
+		)
 
 		res.status(200).send(req.session.user)
 	},

@@ -1,3 +1,6 @@
+const writeConfig = require('../util/writeConfig')
+const curConfig = require('../util/config.json')
+
 module.exports = {
 	ticket: async (req, res) => {
 		const db = req.app.get('db'),
@@ -34,5 +37,20 @@ module.exports = {
 		}
 
 		res.status(200).send(output)
+	},
+	getConfig: (req, res) => {
+		writeConfig(req)
+
+		res.status(200).send(curConfig)
+	},
+	getUser: async (req, res) => {
+		const { id } = req.params,
+			db = req.app.get('db'),
+			user = await db.users.findOne(id)
+
+		delete user.password
+		delete user.activation
+
+		res.status(200).send(user)
 	}
 }

@@ -1,3 +1,3 @@
-refresh materialized view all_tickets;
+refresh materialized view concurrently all_tickets;
 
 select * from all_tickets;

@@ -1,1 +1,1 @@
-select * from ticket_status;
+select * from admin_ticket_status;

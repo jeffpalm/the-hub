@@ -1,1 +1,1 @@
-select * from ticket_attachment_type;
+select * from admin_attachment_type;

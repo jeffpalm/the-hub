@@ -1,5 +1,10 @@
 import axios from 'axios'
-import { UPDATE_USER, LOGOUT_USER, REQUEST_USER } from './actionTypes'
+import {
+	UPDATE_USER,
+	LOGOUT_USER,
+	REQUEST_USER,
+	REQUEST_CONFIG
+} from './actionTypes'
 
 export const updateUser = user => {
 	return {
@@ -19,6 +24,14 @@ export const requestUser = () => {
 	const payload = axios.get('/auth/user').then(res => res.data)
 	return {
 		type: REQUEST_USER,
+		payload
+	}
+}
+
+export const requestConfig = () => {
+	const payload = axios.get('/api/config').then(res => res.data)
+	return {
+		type: REQUEST_CONFIG,
 		payload
 	}
 }

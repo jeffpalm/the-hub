@@ -1,6 +1,6 @@
 const { newTicketVehicle } = require('./vehicleController')
 const { newTicketMessage } = require('./msgController')
-const { handleTicketAssignment } = require('./employeeController')
+const { handleTicketAssignment } = require('./userController')
 
 module.exports = {
 	getTickets: async (req, res) => {
@@ -8,7 +8,7 @@ module.exports = {
 
 		let output = await db.get_all_tickets()
 
-		if (req.query) {
+		if (Object.keys(req.query).length) {
 			const {
 				type,
 				type_id,
@@ -25,10 +25,19 @@ module.exports = {
 			for (let q in req.query) {
 				switch (q) {
 					case 'type':
-						output = output.filter(t => t.type.includes(type))
+						output = output.filter(t =>
+							t.type.toLowerCase().includes(type.toLowerCase())
+						)
 						break
 					case 'guest':
-						output = output.filter(t => t.guest.includes(guest))
+						output = await db.all_tickets.find({
+							or: [
+								{ 'guest ilike': `%${guest}%` },
+								{ 'guest ilike': `${guest}%` },
+								{ 'guest ilike': `%${guest}` }
+							]
+						})
+						output = output.sort((a, b) => a.guest.indexOf(guest) - b.guest.indexOf(guest))
 						break
 					case 'sales':
 						output = output.filter(t => t.sales.includes(sales))
@@ -43,19 +52,19 @@ module.exports = {
 						output = output.filter(t => t.vin.includes(vin))
 						break
 					case 'type_id':
-						output = output.filter(t => t.type_id === +type_id)
+						output = output.filter(t => t.type_id === type_id)
 						break
 					case 'guest_id':
-						output = output.filter(t => t.guest_id === +guest_id)
+						output = output.filter(t => t.guest_id === guest_id)
 						break
 					case 'sales_id':
-						output = output.filter(t => t.sales_id === +sales_id)
+						output = output.filter(t => t.sales_id === sales_id)
 						break
 					case 'manager_id':
-						output = output.filter(t => t.manager_id === +manager_id)
+						output = output.filter(t => t.manager_id === manager_id)
 						break
 					case 'status_id':
-						output = output.filter(t => t.status_id === +status_id)
+						output = output.filter(t => t.status_id === status_id)
 						break
 					default:
 						break
@@ -69,7 +78,7 @@ module.exports = {
 		const db = req.app.get('db'),
 			{
 				sales_id,
-				ticket_type,
+				type,
 				message,
 				vin,
 				guest,
@@ -82,7 +91,7 @@ module.exports = {
 			existingGuest = await db.guests.findOne({ phone: guest.phone }),
 			newTicket = {
 				sales_id,
-				ticket_type,
+				type,
 				showroom,
 				appointment,
 				created_by: sales_id
@@ -121,7 +130,7 @@ module.exports = {
 
 		// Handle Ticket Status
 		const current_status = await db.ticket_status.findOne({
-			ticket_type,
+			type,
 			new_ticket: true
 		})
 		newTicket.current_status = current_status.id
@@ -234,5 +243,14 @@ module.exports = {
 		res.status(200).send(output)
 	},
 	updateTicket: async (req, res) => {},
-	deleteTicket: async (req, res) => {}
+	deleteTicket: async (req, res) => {},
+	searchTest: async (req, res) => {
+		const db = req.app.get('db'),
+			{ guest } = req.query
+
+		await db.all_tickets.refresh(true)
+		const result = await db.all_tickets.find({ 'guest ~*': `${guest}` })
+
+		res.status(200).send(result)
+	}
 }

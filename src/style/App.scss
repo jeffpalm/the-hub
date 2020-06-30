@@ -5,7 +5,13 @@
 	align-items: $ai;
 }
 @for $i from 1 through 100 {
-	.PrivateNotchedOutline-legendLabelled-#{$i} {text-align: center !important;}
+	.PrivateNotchedOutline-legendLabelled-#{$i} {
+		text-align: center !important;
+	}
 }
 
-@import './scss/main.scss'
+body::-webkit-scrollbar {
+	display: none;
+}
+
+@import './scss/main.scss';

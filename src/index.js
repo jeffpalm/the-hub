@@ -17,9 +17,11 @@ const theme = unstable_createMuiStrictModeTheme({
 	spacing: 8,
 	palette: {
 		primary: { main: '#62A60A' },
+		secondary: { main: '#333d47' },
 		type: 'dark',
 		background: {
-			default: '#303030'
+			default: 'rgba(51, 61, 71, .9)',
+			paper: 'rgba(51, 61, 71)'
 		}
 	},
 	overrides: {

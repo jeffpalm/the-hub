@@ -1,1 +1,0 @@
-select * from ticket_field_type;

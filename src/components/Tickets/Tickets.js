@@ -51,7 +51,7 @@ const Tickets = props => {
 			field: 'type',
 			filtering: true,
 			searchable: false,
-			lookup: {Finance: 'Finance', OSF: 'OSF', Cash: 'Cash'}
+			lookup: { Finance: 'Finance', OSF: 'OSF', Cash: 'Cash' }
 		},
 		{
 			title: 'Status',
@@ -82,20 +82,38 @@ const Tickets = props => {
 	]
 
 	useEffect(() => {
-		axios.get('/api/tickets').then(res => {
-			setTickets(
-				res.data.map(t => {
-					setIsLoading(false)
-					return {
-						...t,
-						created: new Date(t.created).toLocaleString(),
-						lastupdate: t.lastupdate
-							? new Date(t.lastupdate).toLocaleString()
-							: null
-					}
+		const CancelToken = axios.CancelToken
+		const source = CancelToken.source()
+
+		const loadTickets = () => {
+			try {
+				axios.get('/api/tickets', { cancelToken: source.token }).then(res => {
+					setTickets(
+						res.data.map(t => {
+							setIsLoading(false)
+							return {
+								...t,
+								created: new Date(t.created).toLocaleString(),
+								lastupdate: t.last_update
+									? new Date(t.last_update).toLocaleString()
+									: null
+							}
+						})
+					)
 				})
-			)
-		})
+			} catch (err) {
+				if (axios.isCancel(err)) {
+					console.log('cancelled')
+				} else {
+					throw err
+				}
+			}
+		}
+		loadTickets()
+
+		return () => {
+			source.cancel()
+		}
 	}, [])
 
 	return (

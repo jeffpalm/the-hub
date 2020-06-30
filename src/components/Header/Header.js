@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
-import { logoutUser } from '../../redux/actions'
+import { logoutUser, requestUser } from '../../redux/actions'
 import clsx from 'clsx'
-import { makeStyles } from '@material-ui/core/styles'
+import { makeStyles, fade } from '@material-ui/core/styles'
 import { withRouter, Link } from 'react-router-dom'
 import axios from 'axios'
 import AppBar from '@material-ui/core/AppBar'
@@ -15,6 +15,17 @@ import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import PowerSettingsNewOutlinedIcon from '@material-ui/icons/PowerSettingsNewOutlined'
+import SearchIcon from '@material-ui/icons/Search'
+import InputBase from '@material-ui/core/InputBase'
+import Typography from '@material-ui/core/Typography'
+import Grid from '@material-ui/core/Grid'
+import Collapse from '@material-ui/core/Collapse'
+import * as roles from '../../constants/ROLES'
+import Switch from '@material-ui/core/Switch'
+import Tooltip from '@material-ui/core/Tooltip'
+import CircularProgress from '@material-ui/core/CircularProgress'
+import Backdrop from '@material-ui/core/Backdrop'
+import Fade from '@material-ui/core/Fade'
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -23,8 +34,93 @@ const useStyles = makeStyles(theme => ({
 	menuButton: {
 		marginRight: theme.spacing(2)
 	},
-	title: {
+	grow: {
 		flexGrow: 1
+	},
+	search: {
+		position: 'relative',
+		borderRadius: theme.shape.borderRadius,
+		backgroundColor: fade(theme.palette.common.white, 0.15),
+		'& :focus': {
+			backgroundColor: fade(theme.palette.common.white, 0.25)
+		},
+		marginRight: theme.spacing(2),
+		marginLeft: 0,
+		width: '100%',
+		[theme.breakpoints.up('sm')]: {
+			marginLeft: theme.spacing(3),
+			width: 'auto'
+		}
+	},
+	searchIcon: {
+		padding: theme.spacing(0, 2),
+		height: '100%',
+		position: 'absolute',
+		pointerEvents: 'none',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center'
+	},
+	inputRoot: {
+		color: 'inherit'
+	},
+	inputInput: {
+		padding: theme.spacing(1, 1, 1, 0),
+		// vertical padding + font size from searchIcon
+		paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+		transition: theme.transitions.create('width'),
+		width: '100%',
+		[theme.breakpoints.up('md')]: {
+			width: '20ch'
+		}
+	},
+	resultsRootContainer: {
+		zIndex: theme.zIndex.tooltip,
+		position: 'absolute',
+		top: '100%',
+		width: '100%',
+		margin: 0
+	},
+	resultsContainer: {
+		padding: 0,
+		margin: 0,
+		position: 'relative',
+		zIndex: theme.zIndex.tooltip,
+		width: '100%'
+	},
+	resultsList: {
+		paddingTop: 15,
+		backgroundColor: theme.palette.primary.main,
+		borderBottomLeftRadius: theme.shape.borderRadius,
+		borderBottomRightRadius: theme.shape.borderRadius,
+		width: '100%'
+	},
+	resultsListAlt: {
+		backgroundColor: theme.palette.secondary.main
+	},
+	results: {
+		'&:hover': { backgroundColor: fade(theme.palette.common.white, 0.25) }
+	},
+	active: {
+		backgroundColor: fade(theme.palette.common.white, 0.25)
+	},
+	resultTransition: {
+		transition: 'all 100ms linear'
+	},
+	backdrop: {
+		zIndex: theme.zIndex.drawer + 1,
+		color: '#fff'
+	},
+	switchBase: {
+		color: 'rgba(244,36,52)'
+	},
+	track: {
+		backgroundColor: 'rgba(244,36,52)'
+	},
+	checked: {
+		switchBase: {
+			color: 'rgba(0, 113, 151)'
+		}
 	}
 }))
 
@@ -82,16 +178,87 @@ const Header = props => {
 
 	const logout = () => {
 		axios.delete('/auth/logout').then(() => {
+			axios.put(`/api/users/${userId}?available=false`)
 			logoutUser()
 			props.history.push('/')
 		})
 	}
 
+	// Handle search bar
+	const [query, setQuery] = useState('')
+	const [results, setResults] = useState([])
+	const [cursor, setCursor] = useState(-1)
+
+	const handleSearchInput = e => {
+		setQuery(e.target.value)
+	}
+	const handleKeyDown = e => {
+		if (e.keyCode === 38 && cursor !== -1) {
+			setCursor(cursor - 1)
+		} else if (e.keyCode === 40 && cursor < results.length - 1) {
+			setCursor(cursor + 1)
+		} else if (e.keyCode === 13 && cursor !== -1 && results.length) {
+			setCursor(-1)
+			setResults([])
+			setQuery('')
+			props.history.push(`/ticket/${results[cursor].id}`)
+		}
+	}
+
+	useEffect(() => {
+		if (!query) {
+			setResults([])
+		}
+	}, [query])
+
+	useEffect(() => {
+		if (query) {
+			axios.get(`/api/tickets?guest=${query}`).then(res => {
+				setResults(res.data)
+			})
+		} else {
+			setResults([])
+		}
+	}, [query])
+
+	// TODO: Handle Availability Toggle
+	// Handle Availability Toggle
+
+	const { available, id: userId } = props.user
+
+	const [availabilityLoading, setAvailabilityLoading] = useState(false)
+
+	const handleAvailabilityToggle = () => {
+		setAvailabilityLoading(true)
+		axios
+			.put(`/api/users/${userId}?available=${!available}`)
+			.then(res => {
+				props.requestUser()
+			})
+			.catch(err => console.log(err))
+	}
+
+	useEffect(() => {
+		if (availabilityLoading) {
+			setAvailabilityLoading(false)
+		}
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [available])
+
 	return (
 		<>
 			{props.isAuthenticated ? (
 				<div className={classes.root}>
-					<AppBar position='fixed'>
+					<AppBar
+						color={
+							props.user.role !== roles.FINANCE_MGR
+								? 'primary'
+								: available
+								? 'primary'
+								: 'secondary'
+						}
+						position='fixed'
+					>
 						<Toolbar>
 							<IconButton
 								edge='start'
@@ -105,11 +272,125 @@ const Header = props => {
 							<Button color='inherit' component={ForwardedLink} to='/home'>
 								Home
 							</Button>
+							<div className={classes.search}>
+								<div className={classes.searchIcon}>
+									<SearchIcon />
+								</div>
+								<InputBase
+									placeholder='Search…'
+									classes={{
+										root: classes.inputRoot,
+										input: classes.inputInput
+									}}
+									inputProps={{ 'aria-label': 'search' }}
+									onChange={handleSearchInput}
+									onKeyDown={handleKeyDown}
+									value={query}
+								/>
+								<Grid
+									className={classes.resultsRootContainer}
+									container
+									justify='center'
+								>
+									<Grid item className={classes.resultsContainer}>
+										{results.length ? (
+											<Collapse
+												in={results.length ? true : false}
+												className={classes.resultTransition}
+											>
+												<List
+													component='div'
+													className={`${classes.resultsList} ${
+														props.user.role !== roles.FINANCE_MGR
+															? ''
+															: available
+															? ''
+															: classes.resultsListAlt
+													}`}
+												>
+													{results.map((r, i) => (
+														<ListItem
+															className={`${classes.results} ${
+																cursor === i ? classes.active : ''
+															}`}
+															focusRipple
+															key={i}
+															button
+															onClick={() => {
+																setCursor(-1)
+																setResults([])
+																setQuery('')
+																props.history.push(`/ticket/${r.id}`)
+															}}
+														>
+															<ListItemText
+																value={r.id}
+																primary={r.guest}
+																secondary={
+																	<>
+																		<Typography
+																			variant='body2'
+																			component='span'
+																		>
+																			{`EG: ${r.sales}`}
+																		</Typography>
+																		<br />
+																		<Typography
+																			variant='body2'
+																			component='span'
+																		>
+																			{`Finance: ${r.manager}`}
+																		</Typography>
+																		<br />
+																		<Typography
+																			variant='body2'
+																			component='span'
+																		>
+																			{`Last Update: ${new Date(
+																				r.last_update
+																			).toLocaleString()}`}
+																		</Typography>
+																	</>
+																}
+															/>
+														</ListItem>
+													))}
+												</List>
+											</Collapse>
+										) : null}
+									</Grid>
+								</Grid>
+							</div>
+
+							<div className={classes.grow} />
+							{props.user.role === roles.FINANCE_MGR &&
+							(available === false || available === true) ? (
+								<>
+									<Tooltip title='Toggle availability'>
+										<Switch
+											checked={available}
+											onChange={handleAvailabilityToggle}
+											value={available}
+											classes={{
+												switchBase: classes.switchBase,
+												track: classes.track,
+												checked: classes.checked
+											}}
+											color={available ? 'secondary' : 'secondary'}
+										/>
+									</Tooltip>
+								</>
+							) : null}
 							<IconButton edge='end' onClick={logout}>
 								<PowerSettingsNewOutlinedIcon />
 							</IconButton>
 						</Toolbar>
 					</AppBar>
+					<Fade in={availabilityLoading}>
+						<Backdrop className={classes.backdrop} open={availabilityLoading}>
+							<CircularProgress color='primary' />
+						</Backdrop>
+					</Fade>
 					<Drawer
 						anchor={anchor}
 						open={state[anchor]}
@@ -125,6 +406,6 @@ const Header = props => {
 
 const mapStateToProps = state => state.auth
 
-export default connect(mapStateToProps, { logoutUser })(
+export default connect(mapStateToProps, { logoutUser, requestUser })(
 	withRouter(Header)
 )

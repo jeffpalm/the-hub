@@ -1,7 +1,14 @@
-select * from ticket_status as status;
+SELECT
+  *
+FROM
+  admin_ticket_status AS "status";
 
-select * from ticket_type as type;
+SELECT
+  *
+FROM
+  admin_ticket_type AS "type";
 
-select * from ticket_attachment_type as attachment_type;
-
-select * from ticket_field_type as field_type;
+SELECT
+  *
+FROM
+  admin_attachment_type AS "attachment_type";

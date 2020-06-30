@@ -26,6 +26,9 @@ import EditIcon from '@material-ui/icons/Edit'
 import AddIcon from '@material-ui/icons/Add'
 // ! Custom Component Imports
 import { ConfirmationDialog } from './ConfirmationDialog'
+// ! CONSTANTS
+import actions from '../../constants/ACTIONS'
+import activities from '../../constants/ACTIVITY'
 
 export const TicketEditContext = createContext()
 
@@ -113,8 +116,7 @@ const Ticket = props => {
 			ticketCount: 0
 		}
 	})
-	const [messages, setMessages] = useState([])
-	const [fields, setFields] = useState([])
+	const [activity, setActivity] = useState([])
 	const [attachments, setAttachments] = useState([])
 
 	const { ticketid } = props.match.params
@@ -145,7 +147,7 @@ const Ticket = props => {
 			})
 			.then(res => {
 				setNewMessage('')
-				setMessages(res.data)
+				setActivity(res.data)
 			})
 	}
 
@@ -158,17 +160,14 @@ const Ticket = props => {
 		axios.get(`/api/ticket/${ticketid}`).then(res => {
 			setTicket({ ...ticket, ...res.data })
 		})
-		// ! If user group is manager, get from history endpoint
 		axios.get(`/api/ticket/${ticketid}/messages`).then(res => {
-			setMessages(res.data)
+			setActivity(res.data)
 		})
 		axios.get(`/api/ticket/${ticketid}/attachments`).then(res => {
 			setAttachments(res.data)
 		})
-		axios.get(`/api/ticket/${ticketid}/fields`).then(res => {
-			setFields(res.data)
-		})
-	}, [ticketid, ticket])
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ticketid])
 
 	const handleClose = (type, newValue) => {
 		setEditStatus({ ...editStatus, [type]: false })
@@ -282,21 +281,6 @@ const Ticket = props => {
 											>
 												<ListItemText primary={vehicle.vin} secondary='VIN' />
 											</ListItem>
-										</List>
-									</Paper>
-								</Grid>
-								<Grid item>
-									<Paper>
-										<List>
-											<ListSubheader>App Fields</ListSubheader>
-											{fields.map(f => (
-												<ListItem key={f.id}>
-													<ListItemText
-														primary={f.content}
-														secondary={f.field_name}
-													/>
-												</ListItem>
-											))}
 										</List>
 									</Paper>
 								</Grid>
@@ -414,10 +398,18 @@ const Ticket = props => {
 							</Paper>
 						</Grid>
 					</Grid>
-
 					<Grid item>
 						<Paper sm={2} xs={1}>
 							<List>
+								<ListItem>
+									<Button
+										variant='outlined'
+										color='primary'
+										endIcon={<AddIcon />}
+									>
+										Add Attachment
+									</Button>
+								</ListItem>
 								<ListSubheader>Attachments</ListSubheader>
 								{attachments.map(a => {
 									return (
@@ -433,22 +425,24 @@ const Ticket = props => {
 					<Grid item>
 						<Paper>
 							<List>
-								<ListSubheader>Messages</ListSubheader>
-								{messages.map((m, i) => {
+								<ListSubheader>Ticket Activity</ListSubheader>
+								{activity.map((a, i) => {
 									return (
 										<ListItem divider key={i}>
-											{m.private ? (
+											{a.private ? (
 												<ListItemIcon>
 													<ErrorOutlineOutlinedIcon />
 												</ListItemIcon>
 											) : null}
 											<ListItemText
 												className={
-													m.private ? classes.privateMsg : classes.message
+													a.private ? classes.privateMsg : classes.message
 												}
-												primary={m.message}
-												secondary={`By ${m.created_by} on ${new Date(
-													m.created
+												primary={a.current}
+												secondary={`${activities[a.activity]} ${
+													actions[a.action]
+												} By ${a.user} on ${new Date(
+													a.logged
 												).toLocaleString()}`}
 											/>
 										</ListItem>

@@ -1,16 +1,51 @@
-insert into ticket_msgs 
-(ticket_id, created_by, private, message)
-values
-($1, $2, $3, $4);
+WITH new_message AS (
+  INSERT INTO
+    ticket_messages (ticket_id, "private", message)
+  VALUES
+    ($1, $3, $4) RETURNING *
+)
+INSERT INTO
+  ticket_activity (
+    "ticket_id",
+    "user_id",
+    "activity",
+    "private",
+    "current",
+    "action",
+    "activity_id"
+  )
+VALUES
+  (
+    $1,
+    $2,
+    'message',
+    $3,
+    $4,
+    'created',
+    (
+      SELECT
+        id
+      FROM
+        new_message
+    )
+  );
 
-update tickets set last_update = now() where id = $1;
-
-insert into ticket_history
-("ticket_id", "created_by", "type", "cur")
-values
-($1, $2, 'message', $4);
-
-select m.created, concat(u.first, ' ', u.last) as created_by, m.private, m.message, m.edited, m.edited_by
-from ticket_msgs as m
-join users as u on m.created_by = u.id
-where m.ticket_id = $1;
+SELECT
+  ta.id,
+  ta.ticket_id,
+  ta.action,
+  ta.activity,
+  ta.activity_id,
+  ta.current,
+  ta.previous,
+  ta.logged,
+  ta.private,
+  ta.user_id,
+  u.name AS USER
+FROM
+  ticket_activity ta
+  JOIN users u ON ta.user_id = u.id
+WHERE
+  ticket_id = $1
+ORDER BY
+  logged;

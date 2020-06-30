@@ -1,0 +1,16 @@
+export default {
+  ticket: 'Finance Application',
+  guest_id: 'Guest',
+  cosigner_id: 'Cosigner',
+  sales_id: 'Experience Guide',
+  manager_id: 'Finance Manager',
+  type: 'Deal Type',
+  status: 'Deal Status',
+  vin: 'VIN',
+  showroom: 'Showroom',
+  attachment: 'Attachment',
+  attachment_type: 'Attachment type',
+  attachment_filepath: 'Attachment filepath',
+  appointment: 'Appointment',
+  message: 'Message',
+}

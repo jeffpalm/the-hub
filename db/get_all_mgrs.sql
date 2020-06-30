@@ -1,1 +1,6 @@
-select * from users where user_group = 2;
+SELECT
+  *
+FROM
+  users
+WHERE
+  "role" = 2;

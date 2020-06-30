@@ -1,3 +1,5 @@
 export const UPDATE_USER = 'UPDATE_USER'
 export const LOGOUT_USER = 'LOGOUT_USER'
 export const REQUEST_USER = 'REQUEST_USER'
+
+export const REQUEST_CONFIG = 'REQUEST_CONFIG'

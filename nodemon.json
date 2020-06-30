@@ -1,3 +1,3 @@
 {
-    "ignore": ["src/", "db/"]
+    "ignore": ["src/", "db/", "server/util/*"]
 }

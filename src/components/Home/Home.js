@@ -1,16 +1,35 @@
 import React from 'react'
-import Tickets from '../Tickets/Tickets'
-import { connect } from 'react-redux'
+// import Tickets from '../Tickets/Tickets'
+import ManagerQueue from '../ManagerQueue/ManagerQueue'
+import Box from '@material-ui/core/Box'
+import { FINANCE_MGR } from '../../constants/ROLES'
+import { useSelector } from 'react-redux'
+import { makeStyles } from '@material-ui/core/styles'
 
-const Hub = props => {
+const useStyles = makeStyles(theme => ({
+	root: {
+		boxSizing: 'border-box',
+		width: '100vw',
+		height: '100vh',
+		marginLeft: 0,
+		marginRight: 0,
+		paddingTop: 64
+	}
+}))
+
+const Home = () => {
+	const classes = useStyles()
+
+	const {
+		user: { role }
+	} = useSelector(state => state.auth)
+
 	return (
-		<main>
-			<h1>Hub Component</h1>
-			<Tickets />
-		</main>
+		<Box className={classes.root}>
+			{role === FINANCE_MGR ? <ManagerQueue /> : null}
+			{/* <Tickets /> */}
+		</Box>
 	)
 }
 
-const mapStateToProps = state => state.auth
-
-export default connect(mapStateToProps)(Hub)
+export default Home

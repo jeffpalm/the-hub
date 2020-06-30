@@ -1,5 +1,10 @@
 {
   "cSpell.words": [
-    "resave"
+    "atlu",
+    "resave",
+    "tickfieldtype"
+  ],
+  "cSpell.ignoreWords": [
+    "clsx"
   ]
 }

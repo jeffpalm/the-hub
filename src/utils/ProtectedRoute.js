@@ -1,25 +1,27 @@
 import React, { useEffect } from 'react'
 import { Route, Redirect, useLocation } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
-import { requestUser } from '../redux/actions'
+
+import { requestUser, requestConfig } from '../redux/actions'
 
 const ProtectedRoute = ({ exact = false, path, component, roles }) => {
 	const {
 			isAuthenticated,
 			loading,
-			user: { user_group: userGroup }
+			user: { role }
 		} = useSelector(state => state.auth),
 		dispatch = useDispatch(),
 		location = useLocation()
 
 	const checkRole = roles => {
 		if (roles) {
-			return roles.includes(userGroup)
+			return roles.includes(role)
 		}
 		return true
 	}
 	useEffect(() => {
 		dispatch(requestUser())
+		dispatch(requestConfig())
 	}, [dispatch])
 
 	return (

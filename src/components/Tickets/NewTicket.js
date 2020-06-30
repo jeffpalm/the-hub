@@ -69,11 +69,11 @@ const useStyles = makeStyles(theme => ({
 const NewTicket = props => {
 	const classes = useStyles()
 
-	const [ticketSettings, setTicketSettings] = useState({})
+	const [ticketConfig, setTicketConfig] = useState({})
 
 	useEffect(() => {
-		axios.get('api/settings/ticket').then(res => {
-			setTicketSettings(res.data)
+		axios.get('api/config').then(res => {
+			setTicketConfig(res.data)
 		})
 	}, [])
 
@@ -262,8 +262,8 @@ const NewTicket = props => {
 											name='type'
 										>
 											<Grid container direction='column' alignItems='center'>
-												{ticketSettings.types
-													? ticketSettings.types.map(type => (
+												{ticketConfig.types
+													? ticketConfig.types.map(type => (
 															<FormControlLabel
 																color='primary'
 																key={type.id}
@@ -296,7 +296,7 @@ const NewTicket = props => {
 												className={classes.field}
 												component={DateTimePicker}
 												name='appointment'
-												label='Appointmet Date/Time'
+												label='Appointment Date/Time'
 												inputVariant='outlined'
 												minutesStep={15}
 											/>
