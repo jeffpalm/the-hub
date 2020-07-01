@@ -2,9 +2,10 @@ import React from 'react'
 // import Tickets from '../Tickets/Tickets'
 import ManagerQueue from '../ManagerQueue/ManagerQueue'
 import Box from '@material-ui/core/Box'
-import { FINANCE_MGR } from '../../constants/ROLES'
+import { FINANCE_MGR, EG, ADMIN } from '../../constants/ROLES'
 import { useSelector } from 'react-redux'
 import { makeStyles } from '@material-ui/core/styles'
+import AddTicketFab from './AddTicketFab/AddTicketFab'
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -28,6 +29,7 @@ const Home = () => {
 		<Box className={classes.root}>
 			{role === FINANCE_MGR ? <ManagerQueue /> : null}
 			{/* <Tickets /> */}
+			{role === EG || role === ADMIN ? <AddTicketFab /> : null}
 		</Box>
 	)
 }

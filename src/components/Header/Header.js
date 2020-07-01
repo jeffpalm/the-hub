@@ -121,6 +121,9 @@ const useStyles = makeStyles(theme => ({
 		switchBase: {
 			color: 'rgba(0, 113, 151)'
 		}
+	},
+	searchBackdrop: {
+		zIndex: theme.zIndex.appBar - 1
 	}
 }))
 
@@ -172,16 +175,26 @@ const Header = props => {
 						onClick={() => props.history.push('/home')}
 					/>
 				</ListItem>
+				<ListItem button>
+					<ListItemText
+						primary='User Management'
+						onClick={() => props.history.push('/users')}
+					/>
+				</ListItem>
 			</List>
 		</div>
 	)
 
-	const logout = () => {
-		axios.delete('/auth/logout').then(() => {
-			axios.put(`/api/users/${userId}?available=false`)
+	const logout = async () => {
+		try {
+			await axios.put(`/api/user/${userId}?available=false`)
+			await axios.delete('/auth/logout')
+		} catch (err) {
+			console.log(err)
+		} finally {
 			logoutUser()
 			props.history.push('/')
-		})
+		}
 	}
 
 	// Handle search bar
@@ -231,7 +244,7 @@ const Header = props => {
 	const handleAvailabilityToggle = () => {
 		setAvailabilityLoading(true)
 		axios
-			.put(`/api/users/${userId}?available=${!available}`)
+			.put(`/api/user/${userId}`, { available: !available })
 			.then(res => {
 				props.requestUser()
 			})
@@ -242,7 +255,7 @@ const Header = props => {
 		if (availabilityLoading) {
 			setAvailabilityLoading(false)
 		}
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [available])
 
 	return (
@@ -277,7 +290,7 @@ const Header = props => {
 									<SearchIcon />
 								</div>
 								<InputBase
-									placeholder='Search…'
+									placeholder='Search all apps…'
 									classes={{
 										root: classes.inputRoot,
 										input: classes.inputInput
@@ -390,6 +403,12 @@ const Header = props => {
 						<Backdrop className={classes.backdrop} open={availabilityLoading}>
 							<CircularProgress color='primary' />
 						</Backdrop>
+					</Fade>
+					<Fade in={query ? true : false}>
+						<Backdrop
+							className={classes.searchBackdrop}
+							open={query ? true : false}
+						></Backdrop>
 					</Fade>
 					<Drawer
 						anchor={anchor}

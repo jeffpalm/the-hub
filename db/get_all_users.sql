@@ -9,6 +9,7 @@ SELECT
   require_reset,
   created,
   last_reset,
-  last_visit
+  last_visit,
+  activated
 FROM
   users;

@@ -10,18 +10,18 @@ const initialState = {
 	ticket_types: [],
 	ticket_statuses: [],
 	attachment_types: [],
-	loading: true
+	configLoading: true
 }
 
 export default function (state = initialState, action) {
 	switch (action.type) {
 		case REQUEST_CONFIG + '_FULFILLED':
-			return { ...action.payload, loading: false }
+			return { ...state, ...action.payload, configLoading: false }
 		case REQUEST_CONFIG + '_PENDING':
-			return { ...state, loading: true }
+			return { ...state, configLoading: true }
 		case REQUEST_CONFIG + '_REJECTED':
-			return { ...initialState, loading: false }
+			return { ...state, configLoading: false }
 		default:
-			return initialState
+			return state
 	}
 }

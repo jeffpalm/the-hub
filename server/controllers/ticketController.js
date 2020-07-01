@@ -1,6 +1,14 @@
 const { newTicketVehicle } = require('./vehicleController')
-const { newTicketMessage } = require('./msgController')
 const { handleTicketAssignment } = require('./userController')
+
+// * Ticket life cycle stages:
+// * new
+// * queued
+// * accepted
+// * disposed
+// * closed
+// * sold
+// * archived
 
 module.exports = {
 	getTickets: async (req, res) => {
@@ -37,7 +45,9 @@ module.exports = {
 								{ 'guest ilike': `%${guest}` }
 							]
 						})
-						output = output.sort((a, b) => a.guest.indexOf(guest) - b.guest.indexOf(guest))
+						output = output.sort(
+							(a, b) => a.guest.indexOf(guest) - b.guest.indexOf(guest)
+						)
 						break
 					case 'sales':
 						output = output.filter(t => t.sales.includes(sales))
@@ -85,16 +95,13 @@ module.exports = {
 				cosigner,
 				showroom,
 				appointment,
-				fields,
 				attachments
 			} = req.body,
 			existingGuest = await db.guests.findOne({ phone: guest.phone }),
 			newTicket = {
 				sales_id,
 				type,
-				showroom,
-				appointment,
-				created_by: sales_id
+				showroom
 			}
 
 		// Handle Guest
@@ -103,9 +110,7 @@ module.exports = {
 		} else {
 			const newGuest = await db.guests.insert({
 				name: guest.name,
-				phone: guest.phone,
-				sales_id,
-				created_by: sales_id
+				phone: guest.phone
 			})
 			newTicket.guest_id = newGuest.id
 		}
@@ -117,9 +122,7 @@ module.exports = {
 			} else {
 				const newCox = await db.guests.insert({
 					name: cosigner.name,
-					phone: cosigner.phone,
-					sales_id,
-					created_by: sales_id
+					phone: cosigner.phone
 				})
 				newTicket.cosigner_id = newCox.id
 			}
@@ -129,32 +132,34 @@ module.exports = {
 		newTicket.vin = vehicle.vin
 
 		// Handle Ticket Status
-		const current_status = await db.ticket_status.findOne({
-			type,
-			new_ticket: true
+
+		const status = await db.admin_ticket_status.findOne({
+			ticket_type: type,
+			lifecycle: 'new'
 		})
-		newTicket.current_status = current_status.id
+		newTicket.status = status.id
 
 		// Handle Manager Assignment
 		const assignedMgr = await handleTicketAssignment(req)
 		newTicket.manager_id = assignedMgr.manager_id
 
-		// Create ticket in database
+		// ! Create ticket in database
 		const dbTicket = await db.tickets.insert(newTicket)
 
 		// Handle Message
 		if (message) {
-			newTicketMessage(message, dbTicket.id, sales_id, req)
+			await db.ticket_messages.insert({
+				ticket_id: dbTicket.id,
+				private: false,
+				message
+			})
 		}
 
-		// Handle Fields
-		if (fields[0]) {
-			fields.forEach(f => {
-				db.ticket_fields.insert({
-					ticket_id: dbTicket.id,
-					field_type: f.field_type,
-					content: f.content
-				})
+		// Handle Appointment
+		if (appointment) {
+			await db.ticket_appointments.insert({
+				ticket_id: dbTicket.id,
+				appointment
 			})
 		}
 
@@ -163,10 +168,8 @@ module.exports = {
 			attachments.forEach(a => {
 				db.ticket_attachments.insert({
 					ticket_id: dbTicket.id,
-					guest_id: dbTicket.guest_id,
 					type: a.type,
-					filepath: a.filepath,
-					created_by: sales_id
+					filepath: a.filepath
 				})
 			})
 		}
@@ -242,15 +245,117 @@ module.exports = {
 
 		res.status(200).send(output)
 	},
-	updateTicket: async (req, res) => {},
-	deleteTicket: async (req, res) => {},
-	searchTest: async (req, res) => {
+	updateTicket: async (req, res) => {
 		const db = req.app.get('db'),
-			{ guest } = req.query
+			{ id } = req.params,
+			{ path } = req.route
 
-		await db.all_tickets.refresh(true)
-		const result = await db.all_tickets.find({ 'guest ~*': `${guest}` })
+		switch (path) {
+			case '/api/ticket/:id/status':
+				const { new_status_id } = req.body
+				try {
+					await db.tickets.update(id, {
+						status: new_status_id
+					})
+				} catch (err) {
+					console.log(err)
+					res.status(500).send(err)
+				}
+				break
+			case '/api/ticket/:id/type':
+				const { new_type_id } = req.body
+				try {
+					await db.tickets.update(id, {
+						type: new_type_id
+					})
+				} catch (err) {
+					console.log(err)
+					res.status(500).send(err)
+				}
+				break
+			case '/api/ticket/:id/sales':
+				const { new_sales_id } = req.body
+				try {
+					await db.tickets.update(id, {
+						sales_id: new_sales_id
+					})
+				} catch (err) {
+					console.log(err)
+					res.status(500).send(err)
+				}
+				break
+			case '/api/ticket/:id/manager':
+				const { new_manager_id } = req.body
+				try {
+					await db.tickets.update(id, {
+						manager_id: new_manager_id
+					})
+				} catch (err) {
+					console.log(err)
+					res.status(500).send(err)
+				}
+				break
+			case '/api/ticket/:id/guest':
+				const { guest_id, guest_name, guest_phone } = req.body
+				try {
+					await db.tickets.update(id, {
+						guest_id
+					})
+					if (guest_name) {
+						await db.guests.update(guest_id, {
+							name: guest_name
+						})
+					}
+					if (guest_phone) {
+						await db.guests.update(guest_id, {
+							phone: guest_phone
+						})
+					}
+				} catch (err) {
+					console.log(err)
+					res.status(500).send(err)
+				}
+				break
+			case '/api/ticket/:id/cosigner':
+				const { cosigner_id, cosigner_name, cosigner_phone } = req.body
+				try {
+					await db.tickets.update(id, {
+						cosigner_id
+					})
+					if (cosigner_name) {
+						await db.guests.update(cosigner_id, {
+							name: cosigner_name
+						})
+					}
+					if (cosigner_phone) {
+						await db.guests.update(cosigner_id, {
+							phone: cosigner_phone
+						})
+					}
+				} catch (err) {
+					console.log(err)
+					res.status(500).send(err)
+				}
+				break
+			case '/api/ticket/:id/vehicle':
+				const { vin } = req.body
+				try {
+					await newTicketVehicle(vin, req)
+				} catch (err) {
+					console.log(err)
+					res.status(500).send(err)
+				}
+				break
+			default:
+				break
+		}
+	},
+	deleteTicket: async (req, res) => {
+		const db = req.app.get('db'),
+			{ id } = req.params
 
-		res.status(200).send(result)
+		db.tickets.destroy(id)
+
+		res.sendStatus(200)
 	}
 }

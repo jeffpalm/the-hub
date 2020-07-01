@@ -1,17 +1,15 @@
 import React, { useEffect } from 'react'
-import { Route, Redirect, useLocation } from 'react-router-dom'
+import { Route, Redirect } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
-
 import { requestUser, requestConfig } from '../redux/actions'
 
 const ProtectedRoute = ({ exact = false, path, component, roles }) => {
 	const {
 			isAuthenticated,
-			loading,
+			userLoading,
 			user: { role }
 		} = useSelector(state => state.auth),
-		dispatch = useDispatch(),
-		location = useLocation()
+		dispatch = useDispatch()
 
 	const checkRole = roles => {
 		if (roles) {
@@ -29,21 +27,12 @@ const ProtectedRoute = ({ exact = false, path, component, roles }) => {
 			{(() => {
 				if (isAuthenticated && checkRole(roles)) {
 					return <Route exact={exact} path={path} component={component} />
-				} else if (loading) {
+				} else if (userLoading) {
 					return null
+				} else if (isAuthenticated && !checkRole(roles)) {
+					return <Redirect to='/unauthorized' />
 				} else {
-					return (
-						<Redirect
-							to={{
-								pathname: location.state
-									? location.state.from
-										? location.state.from
-										: '/'
-									: '/',
-								state: { from: location.pathname }
-							}}
-						/>
-					)
+					return <Redirect to='/' />
 				}
 			})()}
 		</>

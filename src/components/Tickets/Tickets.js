@@ -3,21 +3,8 @@ import axios from 'axios'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
 import MaterialTable from 'material-table'
-import { makeStyles } from '@material-ui/core/styles'
-import Fab from '@material-ui/core/Fab'
-import Tooltip from '@material-ui/core/Tooltip'
-import AddIcon from '@material-ui/icons/Add'
-
-const useStyles = makeStyles(theme => ({
-	fab: {
-		position: 'fixed',
-		bottom: 10,
-		right: 10
-	}
-}))
 
 const Tickets = props => {
-	const classes = useStyles()
 	const [tickets, setTickets] = useState([])
 	const [isLoading, setIsLoading] = useState(true)
 
@@ -136,15 +123,6 @@ const Tickets = props => {
 					searchFieldVariant: 'outlined'
 				}}
 			/>
-			<Tooltip title='New Ticket' placement='left-start'>
-				<Fab
-					className={classes.fab}
-					color='primary'
-					onClick={() => props.history.push('/new')}
-				>
-					<AddIcon />
-				</Fab>
-			</Tooltip>
 		</div>
 	)
 }

@@ -7,5 +7,6 @@ module.exports = {
 		res.status(200).send(attachments)
 	},
 	createAttachment: async (req, res) => {},
+	updateAttachmentType: async (req, res) => {},
 	deleteAttachment: async (req, res) => {}
 }

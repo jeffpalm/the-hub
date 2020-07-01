@@ -42,6 +42,21 @@ CREATE TYPE "ticket_activity_types" AS ENUM (
   'message'
 );
 
+CREATE TYPE "ticket_activity_types" AS ENUM (
+  'ticket',
+  'guest',
+  'cosigner',
+  'sales',
+  'manager',
+  'type',
+  'status',
+  'vin',
+  'showroom',
+  'attachment',
+  'appointment',
+  'message'
+);
+
 CREATE TABLE "users" (
   "id" uuid UNIQUE PRIMARY KEY DEFAULT (uuid_generate_v4()),
   "email" text,
@@ -568,9 +583,11 @@ FROM
   LEFT JOIN guests AS c ON t.cosigner_id = c.id
   JOIN admin_ticket_type AS tt ON t.type = tt.id
   JOIN admin_ticket_status AS ts ON t.status = ts.id
-  JOIN activity_ticket_created AS atc ON atc.ticket_id = t.id
-  JOIN activity_ticket_last_update AS atlu ON atlu.ticket_id = t.id
+  LEFT JOIN activity_ticket_created AS atc ON atc.ticket_id = t.id
+  LEFT JOIN activity_ticket_last_update AS atlu ON atlu.ticket_id = t.id
 JOIN vehicles as v ON t.vin = v.vin;
+
+
 
 
 

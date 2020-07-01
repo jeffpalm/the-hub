@@ -29,7 +29,6 @@
     "lodash": "^4.17.15",
     "massive": "^6.4.0",
     "material-table": "^1.62.0",
-    "moment": "^2.27.0",
     "node-sass": "^4.14.1",
     "nodemailer": "^6.4.10",
     "react": "^16.13.1",

@@ -3,7 +3,7 @@ import { UPDATE_USER, LOGOUT_USER, REQUEST_USER } from '../actionTypes'
 const initialState = {
 	user: {},
 	isAuthenticated: false,
-	loading: true
+	userLoading: true
 }
 
 export default function (state = initialState, action) {
@@ -13,22 +13,22 @@ export default function (state = initialState, action) {
 				...state,
 				user: action.payload,
 				isAuthenticated: true,
-				loading: false
+				userLoading: false
 			}
 		case REQUEST_USER + '_REJECTED':
-			return { ...initialState, loading: false }
+			return { ...initialState, userLoading: false }
 		case REQUEST_USER + '_PENDING':
-			return { ...state, loading: true }
+			return { ...state, userLoading: true }
 		case UPDATE_USER:
 			return {
 				...state,
 				user: action.payload,
 				isAuthenticated: true,
-				loading: false
+				userLoading: false
 			}
 		case LOGOUT_USER:
-			return { ...state, ...action.payload, loading: false }
+			return { ...state, ...action.payload, userLoading: false }
 		default:
-			return initialState
+			return state
 	}
 }

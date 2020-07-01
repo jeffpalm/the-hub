@@ -81,7 +81,7 @@ const NewTicket = props => {
 		<div className={classes.root}>
 			<Formik
 				initialValues={{
-					sales_id: props.user.id,
+					salesID: props.user.id,
 					type: 0,
 					message: '',
 					vin: '',
@@ -93,8 +93,7 @@ const NewTicket = props => {
 					isCosigner: false,
 					cosignerName: '',
 					cosignerPhone: '',
-					attachments: [],
-					fields: []
+					attachments: []
 				}}
 				validationSchema={Yup.object({
 					guestName: Yup.string().required('Guest Name Required'),
@@ -117,7 +116,7 @@ const NewTicket = props => {
 				onSubmit={(values, { setSubmitting }) => {
 					setSubmitting(true)
 					const {
-						sales_id,
+						salesID: sales_id,
 						type: ticket_type,
 						message,
 						vin,
@@ -127,13 +126,12 @@ const NewTicket = props => {
 						guestPhone,
 						cosignerName,
 						cosignerPhone,
-						attachments,
-						fields
+						attachments
 					} = values
 
 					const output = {
 						sales_id,
-						ticket_type,
+						type: +ticket_type,
 						message,
 						vin,
 						guest: {
@@ -146,8 +144,7 @@ const NewTicket = props => {
 						},
 						showroom,
 						appointment,
-						attachments,
-						fields
+						attachments
 					}
 					axios.post('/api/ticket', output).then(res => {
 						setSubmitting(false)

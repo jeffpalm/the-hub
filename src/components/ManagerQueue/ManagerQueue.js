@@ -3,13 +3,9 @@ import { useSelector } from 'react-redux'
 import axios from 'axios'
 import { makeStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
-import Box from '@material-ui/core/Box'
+// import Box from '@material-ui/core/Box'
 import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
-import Button from '@material-ui/core/Button'
-import Card from '@material-ui/core/Card'
-import CardActions from '@material-ui/core/CardActions'
-import CardContent from '@material-ui/core/CardContent'
 import ManagerQueueCard from './ManagerQueueCard'
 
 const useStyles = makeStyles(theme => ({
@@ -26,16 +22,13 @@ const useStyles = makeStyles(theme => ({
 	doneZone: {
 		height: 'calc(10vh)'
 	},
-	pos: {
-		marginBottom: 12
-	},
 	newWip: {
 		width: '100vw',
-		height: 'calc(100vh - 64px)'
+		height: 'calc(100vh - 80px)'
 	},
 	appCard: {},
 	workStackBg: {
-		width: '95%',
+		width: '98%',
 		height: '100%',
 		border: `2px solid ${theme.palette.secondary.dark}`
 	}
@@ -50,19 +43,19 @@ const ManagerQueue = props => {
 		user: { id }
 	} = useSelector(state => state.auth)
 
-	const config = useSelector(state => state.config)
+	// const config = useSelector(state => state.config)
 
 	useEffect(() => {
 		const CancelToken = axios.CancelToken
 		const source = CancelToken.source()
 
-		const loadTickets = () => {
+		const loadTickets = async () => {
 			try {
-				axios
-					.get(`/api/tickets?manager_id=${id}`, { cancelToken: source.token })
-					.then(res => {
-						setTickets(res.data)
-					})
+				const resTickets = await axios.get(`/api/tickets?manager_id=${id}`, {
+					cancelToken: source.token
+				})
+
+				setTickets(resTickets.data)
 			} catch (err) {
 				if (axios.isCancel(err)) {
 					console.log('cancelled')
@@ -121,11 +114,13 @@ const ManagerQueue = props => {
 						<Typography align='center' variant='h3' component={Grid} item>
 							New
 						</Typography>
-						{newTickets.map((tick, i) => (
-							<Box m={1} key={i}>
-								<ManagerQueueCard ticket={tick} />
-							</Box>
-						))}
+						<Grid container wrap='wrap' justify='center' spacing={2}>
+							{newTickets.map((tick, i) => (
+								<Grid key={i} item>
+									<ManagerQueueCard key={i} ticket={tick} />
+								</Grid>
+							))}
+						</Grid>
 					</Paper>
 				</Grid>
 				<Grid
@@ -147,11 +142,13 @@ const ManagerQueue = props => {
 						<Typography align='center' variant='h3' component={Grid} item>
 							Working
 						</Typography>
-						{workingTickets.map((tick, i) => (
-							<Box m={1} key={i}>
-								<ManagerQueueCard ticket={tick} />
-							</Box>
-						))}
+						<Grid container wrap='wrap' justify='center' spacing={1}>
+							{workingTickets.map((tick, i) => (
+								<Grid key={i} item>
+									<ManagerQueueCard key={i} ticket={tick} />
+								</Grid>
+							))}
+						</Grid>
 					</Paper>
 				</Grid>
 			</Grid>

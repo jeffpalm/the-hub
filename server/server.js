@@ -4,16 +4,18 @@ const express = require('express'),
 	massive = require('massive'),
 	session = require('express-session'),
 	// aws = require('aws-sdk'),
-	authController = require('./controllers/authController'),
-	ticketController = require('./controllers/ticketController'),
-	vehicleController = require('./controllers/vehicleController'),
-	attachController = require('./controllers/attachController'),
-	fieldController = require('./controllers/fieldController'),
-	msgController = require('./controllers/msgController'),
-	userController = require('./controllers/userController'),
-	configController = require('./controllers/configController'),
+	authCtrl = require('./controllers/authController'),
+	ticketCtrl = require('./controllers/ticketController'),
+	vehicleCtrl = require('./controllers/vehicleController'),
+	attachCtrl = require('./controllers/attachController'),
+	msgCtrl = require('./controllers/msgController'),
+	userCtrl = require('./controllers/userController'),
+	configCtrl = require('./controllers/configController'),
+	apptCtrl = require('./controllers/appointmentController'),
 	devMiddleware = require('./development/devMiddleware'),
 	devSeed = require('./development/devSeed'),
+	tickActivity = require('./middleware/ticketActivityMiddleware'),
+	role = require('./middleware/roleCheckMiddleware'),
 	{ SERVER_PORT, CONNECTION_STRING, SESSION_SECRET } = process.env
 
 // const awsTest = async () => {
@@ -32,11 +34,14 @@ const express = require('express'),
 // 	}
 // }
 
-// TODO: WRITE ACTIVITY LOGGING FUNCTION
-// TODO: WRITE TICKET SEARCH ENDPOINT
+// // TODO: WRITE ACTIVITY LOGGING FUNCTION
+// // TODO: WRITE TICKET SEARCH ENDPOINT
+// // TODO: Write update type endpoint
+// // TODO: Write update message endpoint
+// // TODO: Write delete message endpoint
+// // TODO: Write update status endpoint
 
-app.use(express.static(`${__dirname}/../build`));
-
+app.use(express.static(`${__dirname}/../build`))
 
 app.use(express.json())
 app.use(
@@ -48,41 +53,154 @@ app.use(
 	})
 )
 
-app.post('/something', (req, res, next) => {
-	console.log(req.method)
+const testMiddleWare = async (req, res, next) => {
+	// req.testActivityId = (await db.test_table.insert({name: 'something'})).id
+	next()
+}
+app.get('/something', testMiddleWare, async (req, res) => {
+	const db = req.app.get('db'),
+		managerRoles = await db.user_role.find({
+			or: [{ manager: true }, { admin: true }]
+		})
+
+	res.status(200).send(managerRoles)
 })
 
-// * Development endpoints
+// TODO: DON'T LEAVE THIS ENDPOINT AVAILABLE
+// ! Development endpoints
 app.post('/seed', devSeed.writeSql, devSeed.seedDb)
 
+// TODO: USER CREATION
 // * Auth Endpoints
-app.post('/auth/new', authController.createUser)
-app.get('/auth/activate', authController.activate)
-app.post('/auth/register', authController.register)
-app.post('/auth/login', devMiddleware, authController.login)
-app.get('/auth/user', authController.getUser)
-app.delete('/auth/logout', authController.logout)
+app.post('/auth/new', role.adminsOnly, authCtrl.createUser)
+app.get('/auth/activate', authCtrl.activate)
+app.post('/auth/register', authCtrl.register)
+app.post('/auth/login', devMiddleware, authCtrl.login)
+app.get('/auth/user', authCtrl.getUser)
+app.delete('/auth/logout', authCtrl.logout)
+app.post('/auth/resend', role.adminsOnly, authCtrl.resendActivation)
 
 // * Ticket Endpoints
-app.get('/api/tickets', ticketController.getTickets)
-app.get('/api/ticket/:id', ticketController.getTicket)
-app.get('/api/ticket/:id/fields', fieldController.getFields)
-app.get('/api/ticket/:id/attachments', attachController.getAttachments)
-app.post('/api/ticket', ticketController.createTicket)
-app.put('/api/ticket/:id', ticketController.updateTicket)
-app.get('/api/ticket/:id/messages', msgController.getMessages)
-app.post('/api/ticket/:id/message', msgController.createMessage)
+app.get('/api/tickets', role.usersOnly, ticketCtrl.getTickets)
+app.get('/api/ticket/:id', role.usersOnly, ticketCtrl.getTicket)
+app.get(
+	'/api/ticket/:id/attachments',
+	role.usersOnly,
+	attachCtrl.getAttachments
+)
+app.get('/api/ticket/:id/messages', role.usersOnly, msgCtrl.getMessages)
+// * POST TICKET ENDPOINTS
+app.post('/api/ticket', tickActivity, role.usersOnly, ticketCtrl.createTicket)
+app.post(
+	'/api/ticket/:id/message',
+	role.usersOnly,
+	tickActivity,
+	msgCtrl.createMessage
+)
+app.post(
+	'/api/ticket/:id/attachment',
+	role.usersOnly,
+	tickActivity,
+	attachCtrl.createAttachment
+)
+app.post(
+	'/api/ticket/:id/appointment',
+	role.usersOnly,
+	tickActivity,
+	apptCtrl.createAppointment
+)
+
+// * PUT TICKET ENDPOINTS
+app.put(
+	'/api/ticket/:id/attachment/:attachmentid',
+	role.usersOnly,
+	tickActivity,
+	attachCtrl.updateAttachmentType
+)
+app.put(
+	'/api/ticket/:id/message/:messageid',
+	role.usersOnly,
+	tickActivity,
+	msgCtrl.updateMessage
+)
+app.put(
+	'/api/ticket/:id/status',
+	role.managersOnly,
+	tickActivity,
+	ticketCtrl.updateTicket
+)
+app.put('/api/ticket/:id/type', tickActivity, ticketCtrl.updateTicket)
+app.put(
+	'/api/ticket/:id/sales',
+	role.managersOnly,
+	tickActivity,
+	ticketCtrl.updateTicket
+)
+app.put(
+	'/api/ticket/:id/manager',
+	role.managersOnly,
+	tickActivity,
+	ticketCtrl.updateTicket
+)
+app.put(
+	'/api/ticket/:id/guest',
+	role.usersOnly,
+	tickActivity,
+	ticketCtrl.updateTicket
+)
+app.put(
+	'/api/ticket/:id/cosigner',
+	role.usersOnly,
+	tickActivity,
+	ticketCtrl.updateTicket
+)
+app.put(
+	'/api/ticket/:id/vehicle',
+	role.usersOnly,
+	tickActivity,
+	ticketCtrl.updateTicket
+)
+app.put(
+	'/api/ticket/:id/appointment/:appointmentid',
+	tickActivity,
+	apptCtrl.updateAppointment
+)
+
+// * DELETE TICKET ENDPOINTS
+app.delete(
+	'/api/ticket/:id',
+	role.adminsOnly,
+	tickActivity,
+	ticketCtrl.deleteTicket
+)
+app.delete(
+	'/api/ticket/:id/message/:messageid',
+	role.adminsOnly,
+	tickActivity,
+	msgCtrl.deleteMessage
+)
+app.delete(
+	'/api/ticket/:id/attachment/:attachmentid',
+	tickActivity,
+	attachCtrl.deleteAttachment
+)
+app.delete(
+	'/api/ticket/:id/appointment/:appointmentid',
+	tickActivity,
+	apptCtrl.deleteAppointment
+)
 
 // * Config Endpoints
-app.get('/api/config', configController.getConfig)
-app.get('/api/settings/ticket', configController.ticket)
-app.get('/api/users', userController.getUsers)
-app.put('/api/users/:id', userController.updateUser)
-app.get('/api/users/managers', userController.getManagers)
-app.get('/api/user/:id', configController.getUser)
+app.get('/api/config', role.usersOnly, configCtrl.getConfig)
+app.get('/api/settings/ticket', role.usersOnly, configCtrl.ticket)
+app.get('/api/users', role.usersOnly, userCtrl.getUsers)
+app.put('/api/user/:id', role.usersOnly, userCtrl.updateUser)
+app.get('/api/users/managers', role.usersOnly, userCtrl.getManagers)
+app.get('/api/user/:id', role.usersOnly, configCtrl.getUser)
+app.put('/api/admin/user/:id', role.adminsOnly, userCtrl.adminUpdateUser)
 
 // * Vehicle Endpoints
-app.post('/api/vehicle', vehicleController.newVehicle)
+app.post('/api/vehicle', role.usersOnly, vehicleCtrl.newVehicle)
 
 massive({
 	connectionString: CONNECTION_STRING,

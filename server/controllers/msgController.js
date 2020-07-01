@@ -11,6 +11,8 @@ module.exports = {
 			{ created_by, private: privateMsg, message } = req.body,
 			db = req.app.get('db')
 
+		// TODO: Edit new_ticket_msg query after writing ticket activity middleware
+
 		const newMessages = await db.new_ticket_msg(
 			id,
 			created_by,
@@ -20,27 +22,6 @@ module.exports = {
 
 		res.status(200).send(newMessages)
 	},
-	editMessage: async (req, res) => {},
-	deleteMessage: async (req, res) => {},
-	newTicketMessage: async (message, ticket_id, created_by, req) => {
-		const db = req.app.get('db')
-
-		const newMessage = await db.ticket_msgs.insert({
-			ticket_id,
-			created_by,
-			private: false,
-			message
-		})
-
-		db.ticket_history
-			.insert({
-				ticket_id,
-				created_by,
-				type: 'message',
-				to: message
-			})
-			.then(res => {
-				return newMessage
-			})
-	}
+	updateMessage: async (req, res) => {},
+	deleteMessage: async (req, res) => {}
 }

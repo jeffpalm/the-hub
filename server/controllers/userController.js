@@ -68,15 +68,21 @@ module.exports = {
 	updateUser: async (req, res) => {
 		const db = req.app.get('db'),
 			{ id } = req.params
-		
+
 		let output
 
-		if (Object.keys(req.query).length) {
-			const { available } = req.query
-			for (let query in req.query) {
-				switch (query) {
+		if (Object.keys(req.body).length) {
+			const { available, phone, email } = req.body
+			for (let key in req.body) {
+				switch (key) {
 					case 'available':
 						output = await db.update_user_availability(id, available)
+						break
+					case 'phone':
+						await db.users.update(id, { phone: phone })
+						break
+					case 'email':
+						await db.users.update(id, { email: email })
 						break
 					default:
 						break
@@ -84,5 +90,25 @@ module.exports = {
 			}
 		}
 		res.status(200).send(output)
+	},
+	adminUpdateUser: async (req, res) => {
+		const db = req.app.get('db')
+		const { id, email, name, phone, role, available, require_reset } = req.body
+
+		console.log(req.body)
+
+		const updatedUser = await db.users.update(id, {
+			email,
+			name,
+			phone,
+			role,
+			available,
+			require_reset
+		})
+
+		delete updatedUser.password
+		delete updatedUser.activation
+
+		res.status(200).send(updatedUser)
 	}
 }
