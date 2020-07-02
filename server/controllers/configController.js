@@ -1,6 +1,6 @@
-const writeConfig = require('../util/writeConfig')
-const curConfig = require('../util/config.json')
-
+// const writeConfig = require('../util/writeConfig')
+// const curConfig = require('../util/config.json')
+const ADMIN = 1, FINANCE_MGR = 2, EG = 3
 module.exports = {
 	ticket: async (req, res) => {
 		const db = req.app.get('db'),
@@ -38,10 +38,19 @@ module.exports = {
 
 		res.status(200).send(output)
 	},
-	getConfig: (req, res) => {
-		writeConfig(req)
+	getConfig: async (req, res) => {
+		const db = req.app.get('db')
+		const config = {}
 
-		res.status(200).send(curConfig)
+		config.admins = await db.get_users_by_role(ADMIN)
+		config.managers = await db.get_users_by_role(FINANCE_MGR)
+		config.sales = await db.get_users_by_role(EG)
+		config.roles = await db.user_role.find()
+		config.types = await db.admin_ticket_type.find()
+		config.statuses = await db.admin_ticket_status.find()
+		config.attachmentTypes = await db.admin_attachment_type.find()
+
+		res.status(200).send(config)
 	},
 	getUser: async (req, res) => {
 		const { id } = req.params,

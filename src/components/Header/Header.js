@@ -175,12 +175,22 @@ const Header = props => {
 						onClick={() => props.history.push('/home')}
 					/>
 				</ListItem>
-				<ListItem button>
-					<ListItemText
-						primary='User Management'
-						onClick={() => props.history.push('/users')}
-					/>
-				</ListItem>
+				{props.user.role === 1 ? (
+					<ListItem button>
+						<ListItemText
+							primary='User Management'
+							onClick={() => props.history.push('/config/users')}
+						/>
+					</ListItem>
+				) : null}
+				{props.user.role === 1 ? (
+					<ListItem button>
+						<ListItemText
+							primary='Ticket Management'
+							onClick={() => props.history.push('/config/tickets')}
+						/>
+					</ListItem>
+				) : null}
 			</List>
 		</div>
 	)

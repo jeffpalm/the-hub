@@ -18,7 +18,7 @@ const useStyles = makeStyles(theme => ({
 		padding: 0
 	},
 	workStacks: {
-		height: '100%'
+		minHeight: '100vh'
 	},
 	doneZone: {
 		height: 'calc(10vh)'
@@ -30,8 +30,9 @@ const useStyles = makeStyles(theme => ({
 	appCard: {},
 	workStackBg: {
 		width: '98%',
-		height: '100%',
-		border: `2px solid ${blueGrey[900]}`
+		minHeight: '100vh',
+		border: `2px solid ${blueGrey[900]}`,
+		paddingBottom: theme.spacing(2)
 	}
 }))
 
@@ -93,7 +94,6 @@ const ManagerQueue = props => {
 				container
 				item
 				direction='row'
-				alignItems='center'
 				justify='center'
 			>
 				<Grid
@@ -118,7 +118,7 @@ const ManagerQueue = props => {
 						<Grid container wrap='wrap' justify='center' spacing={2}>
 							{newTickets.map((tick, i) => (
 								<Grid key={i} item>
-									<ManagerQueueCard key={i} ticket={tick} />
+									<ManagerQueueCard key={i} ticket={tick} userid={id} />
 								</Grid>
 							))}
 						</Grid>
@@ -146,7 +146,7 @@ const ManagerQueue = props => {
 						<Grid container wrap='wrap' justify='center' spacing={1}>
 							{workingTickets.map((tick, i) => (
 								<Grid key={i} item>
-									<ManagerQueueCard key={i} ticket={tick} />
+									<ManagerQueueCard key={i} ticket={tick} userid={id}/>
 								</Grid>
 							))}
 						</Grid>

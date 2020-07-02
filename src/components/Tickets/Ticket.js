@@ -45,7 +45,7 @@ const useStylesTextField = makeStyles(theme => ({
 	},
 	field: {
 		margin: theme.spacing(1),
-		padding: theme.spacing(1),
+		// padding: theme.spacing(1),
 		textAlign: 'center',
 		width: '90%',
 		'& input': {
@@ -82,39 +82,32 @@ const Ticket = props => {
 	const classes = useStylesTextField()
 	//#region
 	const [ticket, setTicket] = useState({
-		ticket: {
-			id: '',
-			type: '',
-			status: '',
-			created: '',
-			updated: '',
-			closed: ''
-		},
-		sales: {
-			id: '',
-			name: ''
-		},
-		manager: {
-			id: '',
-			name: ''
-		},
-		guest: {
-			id: '',
-			name: '',
-			phone: ''
-		},
-		cosigner: {
-			id: '',
-			name: '',
-			phone: ''
-		},
-		vehicle: {
-			vin: '',
-			year: '',
-			make: '',
-			model: '',
-			ticketCount: 0
-		}
+		sales: '',
+		manager: '',
+		guest: '',
+		id: 0,
+		guest_id: 0,
+		guest_phone: '',
+		cosigner_name: '',
+		cosigner_id: 0,
+		cosigner_phone: '',
+		sales_phone: '',
+		sales_id: 0,
+		manager_id: 0,
+		type: '',
+		type_id: 0,
+		type_weight: '',
+		status: '',
+		status_lifecycle: '',
+		status_id: 0,
+		vin: '',
+		year: '',
+		make: '',
+		model: '',
+		vehicle_ticket_count: '',
+		created: '',
+		last_update: '',
+		showroom: ''
 	})
 	const [activity, setActivity] = useState([])
 	const [attachments, setAttachments] = useState([])
@@ -135,13 +128,23 @@ const Ticket = props => {
 		vehicle: false
 	})
 
-	const [edits, setEdits] = useState({ ticketid })
+	const statusLookup = {
+		Approved: 9,
+		Closed: 15,
+		Declined: 8,
+		New: 1,
+		Rehash: 7,
+		Sold: 12,
+		Working: 4
+	}
+
+	// const [edits, setEdits] = useState({ ticketid })
 
 	const submitMessage = e => {
 		e.preventDefault()
 		axios
 			.post(`/api/ticket/${ticketid}/message`, {
-				created_by: props.user.id,
+				created_by: props.auth.user.id,
 				private: privateMsg,
 				message: newMessage
 			})
@@ -169,18 +172,17 @@ const Ticket = props => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ticketid])
 
-	const handleClose = (type, newValue) => {
-		setEditStatus({ ...editStatus, [type]: false })
-		if (newValue) {
-			setEdits({ ...edits, [type]: newValue })
-			axios.put(`/api/ticket/${ticketid}`, edits).then(res => {
-				setTicket({ ...ticket, ...res.data })
-				setEdits({ ticketid })
-			})
-		}
-	}
-
-	const { ticket: tick, sales, manager, guest, cosigner, vehicle } = ticket
+	// const handleClose = (type, newValue) => {
+	// 	setEditStatus({ ...editStatus, [type]: false })
+	// 	if (newValue) {
+	// 		setEdits({ ...edits, [type]: newValue })
+	// 		axios.put(`/api/ticket/${ticketid}`, edits).then(res => {
+	// 			setTicket({ ...ticket, ...res.data })
+	// 			setEdits({ ticketid })
+	// 		})
+	// 	}
+	// }
+	const { guest } = ticket
 	//#endregion
 	return (
 		<Container className={classes.root} p={10}>
@@ -208,7 +210,7 @@ const Ticket = props => {
 										<List>
 											<ListSubheader>Guest Details</ListSubheader>
 											<ListItem>
-												<ListItemText primary={guest.name} secondary='Guest' />
+												<ListItemText primary={guest} secondary='Guest' />
 												<ListItemSecondaryAction>
 													<IconButton
 														onClick={() => {
@@ -222,37 +224,37 @@ const Ticket = props => {
 											<ListItem
 												button
 												onClick={() => {
-													copyToClipboard(guest.phone)
+													copyToClipboard(ticket.guest_phone)
 												}}
 											>
 												<ListItemText
-													primary={guest.phone}
+													primary={ticket.guest_phone}
 													secondary='Guest Phone'
 												/>
 											</ListItem>
-											{cosigner.id ? (
+											{ticket.cosigner_id ? (
 												<>
 													<ListItem>
 														<ListItemText
-															primary={cosigner.name}
+															primary={ticket.cosigner_name}
 															secondary='Co-Signer Name'
 														/>
 													</ListItem>
 													<ListItem
 														button
 														onClick={() => {
-															copyToClipboard(cosigner.phone)
+															copyToClipboard(ticket.cosigner_phone)
 														}}
 													>
 														<ListItemText
-															primary={cosigner.phone}
+															primary={ticket.cosigner_phone}
 															secondary='Co-Signer Phone'
 														/>
 													</ListItem>
 												</>
 											) : (
 												<ListItem>
-													<Button
+													<Button // TODO: ADD ADD COSIGNER ACTION
 														variant='outlined'
 														color='primary'
 														endIcon={<AddIcon />}
@@ -270,16 +272,16 @@ const Ticket = props => {
 											<ListSubheader>Vehicle Details</ListSubheader>
 											<ListItem>
 												<ListItemText
-													primary={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
+													primary={`${ticket.year} ${ticket.make} ${ticket.model}`}
 												/>
 											</ListItem>
 											<ListItem
 												button
 												onClick={() => {
-													copyToClipboard(vehicle.vin)
+													copyToClipboard(ticket.vin)
 												}}
 											>
-												<ListItemText primary={vehicle.vin} secondary='VIN' />
+												<ListItemText primary={ticket.vin} secondary='VIN' />
 											</ListItem>
 										</List>
 									</Paper>
@@ -291,7 +293,7 @@ const Ticket = props => {
 								<List>
 									<ListSubheader>App Details</ListSubheader>
 									<ListItem>
-										<ListItemText primary={tick.id} secondary='Ticket ID#' />
+										<ListItemText primary={ticket.id} secondary='Ticket ID#' />
 									</ListItem>
 									<ListItem
 										button
@@ -302,15 +304,37 @@ const Ticket = props => {
 											})
 										}}
 									>
-										<ListItemText primary={tick.type} secondary='Type' />
+										<ListItemText primary={ticket.type} secondary='Type' />
 									</ListItem>
 									<ConfirmationDialog
-										classes={{ paper: classes.paper }}
 										keepMounted
+										classes={{ paper: classes.paper }}
 										open={editStatus.type}
-										value={tick.type}
-										options={['Finance', 'OSF', 'Cash']}
-										onClose={handleClose}
+										value={ticket.type_id}
+										options={[
+											{ label: 'Finance', value: 1 },
+											{ label: 'OSF', value: 2 },
+											{ label: 'Cash', value: 3 }
+										]}
+										onClose={async (type, value) => {
+											setEditStatus({ ...editStatus, [type]: false })
+											if (value) {
+												try {
+													const res = await axios.put(
+														`/api/ticket/${ticket.id}/type`,
+														{ new_type_id: value }
+													)
+
+													setTicket(res.data)
+												} catch (err) {
+													if (axios.isCancel(err)) {
+														console.log('Update type failed')
+													} else {
+														throw err
+													}
+												}
+											}
+										}}
 										tickfieldtype='type'
 									/>
 									<ListItem
@@ -322,34 +346,71 @@ const Ticket = props => {
 											})
 										}}
 									>
-										<ListItemText primary={tick.status} secondary='Status' />
+										<ListItemText primary={ticket.status} secondary='Status' />
 									</ListItem>
 									<ConfirmationDialog
-										classes={{ paper: classes.paper }}
 										keepMounted
+										classes={{ paper: classes.paper }}
 										open={editStatus.status}
-										value={tick.status}
-										options={[
-											'Working',
-											'Approved',
-											'Declined',
-											'Rehash',
-											'Sold'
-										]}
-										onClose={handleClose}
+										value={ticket.status_id}
+										options={
+											ticket.type_id
+												? [
+														{
+															label: 'Working',
+															value: statusLookup['Working']
+														},
+														{
+															label: 'Approved',
+															value: statusLookup['Approved']
+														},
+														{
+															label: 'Declined',
+															value: statusLookup['Declined']
+														},
+														{
+															label: 'Rehash',
+															value: statusLookup['Rehash']
+														},
+														{
+															label: 'Sold',
+															value: statusLookup['Sold']
+														}
+												  ]
+												: []
+										}
+										onClose={async (type, value) => {
+											setEditStatus({ ...editStatus, [type]: false })
+											if (value) {
+												try {
+													const res = await axios.put(
+														`/api/ticket/${ticket.id}/status`,
+														{ new_status_id: value }
+													)
+
+													setTicket(res.data)
+												} catch (err) {
+													if (axios.isCancel(err)) {
+														console.log('Update status failed')
+													} else {
+														throw err
+													}
+												}
+											}
+										}}
 										tickfieldtype='status'
 									/>
 									<ListItem>
 										<ListItemText
-											primary={new Date(tick.created).toLocaleString()}
+											primary={new Date(ticket.created).toLocaleString()}
 											secondary='Created'
 										/>
 									</ListItem>
 									<ListItem>
 										<ListItemText
 											primary={
-												tick.updated
-													? new Date(tick.updated).toLocaleString()
+												ticket.updated
+													? new Date(ticket.updated).toLocaleString()
 													: null
 											}
 											secondary='Updated'
@@ -358,8 +419,8 @@ const Ticket = props => {
 									<ListItem>
 										<ListItemText
 											primary={
-												tick.closed
-													? new Date(tick.closed).toLocaleString()
+												ticket.closed
+													? new Date(ticket.closed).toLocaleString()
 													: null
 											}
 											secondary='Closed'
@@ -375,22 +436,43 @@ const Ticket = props => {
 										}}
 									>
 										<ListItemText
-											primary={sales.name}
+											primary={ticket.sales}
 											secondary='Experience Guide'
 										/>
 									</ListItem>
 									<ConfirmationDialog
-										classes={{ paper: classes.paper }}
 										keepMounted
+										classes={{ paper: classes.paper }}
 										open={editStatus.sales}
-										value={tick.sales}
-										options={['SP 1', 'SP 2', 'SP 3', 'SP 4', 'SP 6']}
-										onClose={handleClose}
+										value={ticket.sales_id}
+										options={props.config.sales.map((s, i) => ({
+											label: s.name,
+											value: s.id
+										}))}
+										onClose={async (type, value) => {
+											setEditStatus({ ...editStatus, [type]: false })
+											if (value) {
+												try {
+													const res = await axios.put(
+														`/api/ticket/${ticket.id}/sales`,
+														{ new_sales_id: value }
+													)
+
+													setTicket(res.data)
+												} catch (err) {
+													if (axios.isCancel(err)) {
+														console.log('Update sales failed')
+													} else {
+														throw err
+													}
+												}
+											}
+										}}
 										tickfieldtype='sales'
 									/>
 									<ListItem>
 										<ListItemText
-											primary={manager.name}
+											primary={ticket.manager}
 											secondary='Finance Manager'
 										/>
 									</ListItem>
@@ -425,7 +507,7 @@ const Ticket = props => {
 					<Grid item>
 						<Paper>
 							<List>
-								<ListSubheader>Ticket Activity</ListSubheader>
+								<ListSubheader>Finance App Activity</ListSubheader>
 								{activity.map((a, i) => {
 									return (
 										<ListItem divider key={i}>
@@ -480,6 +562,6 @@ const Ticket = props => {
 	)
 }
 
-const mapStateToProps = state => state.auth
+const mapStateToProps = state => state
 
 export default connect(mapStateToProps)(Ticket)

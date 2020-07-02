@@ -182,67 +182,70 @@ module.exports = {
 
 		let output = {}
 
-		if (id) {
-			const [ticket] = await db.get_ticket(id),
-				{
-					type,
-					status,
-					created,
-					updated,
-					closed,
-					sales_id,
-					sales_name,
-					manager_id,
-					manager_name,
-					guest_id,
-					guest_name,
-					guest_phone,
-					cosigner_id,
-					cosigner_name,
-					cosigner_phone,
-					vin,
-					year,
-					make,
-					model,
-					ticket_count
-				} = ticket
-			output = {
-				ticket: {
-					id,
-					type,
-					status,
-					created,
-					updated,
-					closed
-				},
-				sales: {
-					id: sales_id,
-					name: sales_name
-				},
-				manager: {
-					id: manager_id,
-					name: manager_name
-				},
-				guest: {
-					id: guest_id,
-					name: guest_name,
-					phone: guest_phone
-				},
-				cosigner: {
-					id: cosigner_id,
-					name: cosigner_name,
-					phone: cosigner_phone
-				},
-				vehicle: {
-					vin,
-					year,
-					make,
-					model,
-					ticketCount: ticket_count
-				}
-			}
-		}
+		// if (id) {
+		// 	const [ticket] = await db.get_ticket(id),
+		// 		{
+		// 			type,
+		// 			status,
+		// 			created,
+		// 			updated,
+		// 			closed,
+		// 			sales_id,
+		// 			sales_name,
+		// 			manager_id,
+		// 			manager_name,
+		// 			guest_id,
+		// 			guest_name,
+		// 			guest_phone,
+		// 			cosigner_id,
+		// 			cosigner_name,
+		// 			cosigner_phone,
+		// 			vin,
+		// 			year,
+		// 			make,
+		// 			model,
+		// 			ticket_count
+		// 		} = ticket
+		// 	output = {
+		// 		ticket: {
+		// 			id,
+		// 			type,
+		// 			status,
+		// 			created,
+		// 			updated,
+		// 			closed
+		// 		},
+		// 		sales: {
+		// 			id: sales_id,
+		// 			name: sales_name
+		// 		},
+		// 		manager: {
+		// 			id: manager_id,
+		// 			name: manager_name
+		// 		},
+		// 		guest: {
+		// 			id: guest_id,
+		// 			name: guest_name,
+		// 			phone: guest_phone
+		// 		},
+		// 		cosigner: {
+		// 			id: cosigner_id,
+		// 			name: cosigner_name,
+		// 			phone: cosigner_phone
+		// 		},
+		// 		vehicle: {
+		// 			vin,
+		// 			year,
+		// 			make,
+		// 			model,
+		// 			ticketCount: ticket_count
+		// 		}
+		// 	}
+		// }
 
+		await db.reload()
+		output = await db.all_tickets.findOne({id})
+	
 		res.status(200).send(output)
 	},
 	updateTicket: async (req, res) => {
@@ -349,6 +352,9 @@ module.exports = {
 			default:
 				break
 		}
+
+		const output = await db.all_tickets.findOne({id})
+		res.status(200).send(output)
 	},
 	deleteTicket: async (req, res) => {
 		const db = req.app.get('db'),

@@ -596,9 +596,11 @@ SELECT
   s.id AS sales_id,
   m.name AS manager,
   m.id AS manager_id,
-  tt.name AS TYPE,
+  tt.name AS type,
   tt.id AS type_id,
-  ts.name AS STATUS,
+  tt.weight AS type_weight,
+  ts.name AS status,
+  ts.lifecycle AS status_lifecycle,
   ts.id AS status_id,
   t.vin,
   v.year,
@@ -717,3 +719,18 @@ $BODY$ LANGUAGE plpgsql COST 100;
 CREATE TRIGGER notify_new_message AFTER
 INSERT
   ON "ticket_activity" FOR each ROW EXECUTE PROCEDURE notify_new_message();
+
+
+
+select 
+date_trunc('day', created) as created,
+count(*) filter (where status_lifecycle = 'new') as new_count,
+count(*) filter (where status_lifecycle = 'queued') as queued_count,
+count(*) filter (where status_lifecycle = 'accepted') as accepted_count,
+count(*) filter (where status_lifecycle = 'disposed') as disposed_count,
+count(*) filter (where status_lifecycle = 'closed') as closed_count,
+count(*) filter (where status_lifecycle = 'sold') as sold_count,
+count(*) filter (where status_lifecycle = 'archived') as archived_count,
+count(*) as total_count
+from all_tickets 
+where sales_id = 'fe5a96ce-c77b-425a-a944-3415a685e6f4' group by created;

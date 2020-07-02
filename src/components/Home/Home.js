@@ -1,5 +1,5 @@
 import React from 'react'
-// import Tickets from '../Tickets/Tickets'
+import Tickets from '../Tickets/Tickets'
 import ManagerQueue from '../ManagerQueue/ManagerQueue'
 import Box from '@material-ui/core/Box'
 import { FINANCE_MGR, EG, ADMIN } from '../../constants/ROLES'
@@ -28,7 +28,7 @@ const Home = () => {
 	return (
 		<Box className={classes.root}>
 			{role === FINANCE_MGR ? <ManagerQueue /> : null}
-			{/* <Tickets /> */}
+			<Tickets />
 			{role === EG || role === ADMIN ? <AddTicketFab /> : null}
 		</Box>
 	)

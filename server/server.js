@@ -86,7 +86,7 @@ app.get(
 )
 app.get('/api/ticket/:id/messages', role.usersOnly, msgCtrl.getMessages)
 // * POST TICKET ENDPOINTS
-app.post('/api/ticket', tickActivity, role.usersOnly, ticketCtrl.createTicket)
+app.post('/api/ticket', ticketCtrl.createTicket)
 app.post(
 	'/api/ticket/:id/message',
 	role.usersOnly,

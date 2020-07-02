@@ -25,7 +25,8 @@ const Tickets = props => {
 			title: 'EG',
 			field: 'sales',
 			filtering: true,
-			searchable: true
+			searchable: true,
+			defaultFilter: props.user.role === 3 ? props.user.name : ''
 		},
 		{
 			title: 'Finance',

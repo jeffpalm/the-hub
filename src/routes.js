@@ -7,7 +7,8 @@ import Login from './components/Auth/Login'
 import Home from './components/Home/Home'
 import Ticket from './components/Tickets/Ticket'
 import NewTicket from './components/Tickets/NewTicket'
-import UserManagement from './components/UserManagement/UserManagement'
+import UserManagement from './components/Admin/UserManagement/UserManagement'
+import TicketManagement from './components/Admin/TicketManagement/TicketManagement'
 import Activate from './components/Auth/Activate'
 
 export default (
@@ -16,8 +17,13 @@ export default (
 		<ProtectedRoute path='/home' component={Home} />
 		<ProtectedRoute path='/ticket/:ticketid' component={Ticket} />
 		<ProtectedRoute path='/new' component={NewTicket} />
-		<ProtectedRoute path='/users' roles={[ADMIN]} component={UserManagement} />
-		<ProtectedRoute exact path='/activate/complete' component={Activate}/>
+		<ProtectedRoute path='/config/users' roles={[ADMIN]} component={UserManagement} />
+		<ProtectedRoute
+			path='/config/tickets'
+			roles={[ADMIN]}
+			component={TicketManagement}
+		/>
+		<ProtectedRoute exact path='/activate/complete' component={Activate} />
 		<Route exact path='/unauthorized' component={NoNoNo} />
 		<Redirect to='/' />
 	</Switch>

@@ -34,7 +34,7 @@ export const ConfirmationDialog = ({
 	}, [valueProp, open])
 
 	const handleEntering = () => {
-		if (radioGroupRef.current != null) {
+		if (radioGroupRef.current !== null) {
 			radioGroupRef.current.focus()
 		}
 	}
@@ -49,6 +49,7 @@ export const ConfirmationDialog = ({
 
 	const handleChange = event => {
 		setValue(event.target.value)
+		// console.log(event.target.value)
 	}
 
 	return (
@@ -67,12 +68,13 @@ export const ConfirmationDialog = ({
 					value={value}
 					onChange={handleChange}
 				>
-					{options.map(option => (
+					{options.map((option, index) => (
 						<FormControlLabel
-							value={option}
-							key={option}
+							value={option.value}
+							key={option.value}
 							control={<Radio />}
-							label={option}
+							label={option.label}
+							checked={value === option.value}
 						/>
 					))}
 				</RadioGroup>
@@ -92,6 +94,6 @@ export const ConfirmationDialog = ({
 ConfirmationDialog.propTypes = {
 	onClose: PropTypes.func.isRequired,
 	open: PropTypes.bool.isRequired,
-	value: PropTypes.string,
+	value: PropTypes.any,
 	options: PropTypes.array.isRequired
 }
