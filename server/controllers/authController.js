@@ -1,8 +1,22 @@
 require('dotenv').config()
 const bcrypt = require('bcrypt')
 const keygen = require('keygen')
+const addDays = require('date-fns/addDays')
+const compareAsc = require('date-fns/compareAsc')
 const nodemailer = require('nodemailer')
 const { SMTP_HOST, SMTP_USER, SMTP_PASS } = process.env
+const hbs = require('nodemailer-express-handlebars')
+const options = {
+	viewEngine: {
+		extname: '.hbs',
+		layoutsDir: __dirname + '/../templates',
+		defaultLayout: 'activation',
+		partialsDir: __dirname + '/../templates'
+	},
+	viewPath: __dirname + '/../templates',
+	extName: '.hbs'
+}
+
 const transporter = nodemailer.createTransport({
 	host: SMTP_HOST,
 	port: 465,
@@ -12,15 +26,23 @@ const transporter = nodemailer.createTransport({
 		pass: SMTP_PASS
 	}
 })
+transporter.use('compile', hbs(options))
 
-const addDays = require('date-fns/addDays')
-const compareAsc = require('date-fns/compareAsc')
+// const transporterTest = nodemailer.createTransport({
+// 	host: 'smtp.ethereal.email',
+// 	port: 587,
+// 	auth: {
+// 		user: 'darrin79@ethereal.email',
+// 		pass: 'baRPQ8ZFc5sZ1uPJmW'
+// 	}
+// })
 
 module.exports = {
 	createUser: async (req, res) => {
 		const { email, name, phone, role } = req.body,
 			db = req.app.get('db'),
 			activation = keygen.url(keygen.large),
+			activationHash = bcrypt.hashSync(activation, bcrypt.genSaltSync(10)),
 			newUser = await db.users.insert({
 				email,
 				name,
@@ -32,29 +54,27 @@ module.exports = {
 			message = {
 				from: SMTP_USER,
 				to: email,
-				subject: 'The Hub Account Activation',
-				text: `Hey ${name.substring(
-					0,
-					name.indexOf(' ')
-				)}! Please visit the following link to confirm your registration: http://localhost:9000/auth/register?a=${activation}`,
-				html: `<h2>Hey ${name.substring(
-					0,
-					name.indexOf(' ')
-				)}!</h2><br><br><a href="http://localhost:9000/auth/activate?a=${activation}&id=${
-					newUser.id
-				}">Click here to complete your Hub account registration.</a>`
+				subject: 'Hub Account Activation',
+				template: 'activation',
+				context: {
+					first: name.substring(0, name.indexOf(' ')),
+					activation: `http://localhost:9000/auth/activate?a=${activation}&id=${newUser.id}`
+				}
 			},
 			activationEmail = await db.email_activation.insert({
 				user_id: newUser.id,
-				activation: activation,
-				message,
+				activation: activationHash,
+				to: email,
 				expiration: addDays(new Date(), 1)
 			})
 
-		transporter.sendMail(message, () => {
-			console.log(`Registration email sent to: ${email}`)
-		})
 		await db.users.update(newUser.id, { activation: activationEmail.id })
+
+		transporter.sendMail(message, async (error, info) => {
+			await db.email_log.insert({ error, info, message })
+			if (error) return res.status(500).send(error)
+			console.log(`Registration email sent`)
+		})
 
 		const response = await db.get_all_users()
 
@@ -71,11 +91,14 @@ module.exports = {
 
 		// Get activation from email_activation table
 
-		const activation = db.email_activation.findOne(user.activation)
+		const activation = await db.email_activation.findOne(user.activation)
 
-		// const authenticated = bcrypt.compareSync(a, activation.activation)
+		const authenticated = bcrypt.compareSync(a, activation.activation)
 
-		if (a !== activation.activation) return res.status(403).send('Forbidden')
+		console.log('activation: ', activation.activation)
+		console.log('a: ', a)
+
+		if (!authenticated) return res.status(403).send('Forbidden')
 
 		// * check if email expired
 		if (compareAsc(new Date(), activation.expiration) === 1) {
@@ -87,26 +110,30 @@ module.exports = {
 
 		req.session.user = user
 
-		res.status(200).redirect(`/activate`)
+		res.status(200).redirect(`/#/activate/complete`)
 	},
 	register: async (req, res) => {
-		const { id, first, last, phone, password, email } = req.body,
+		const { id, name, phone, password } = req.body,
 			db = req.app.get('db'),
-			user = await db.users.findOne({ email })
+			user = await db.users.findOne({ id })
 
 		if (!user) return res.status(404).send('User does not exist')
 
 		const hash = bcrypt.hashSync(password, bcrypt.genSaltSync(10))
 
 		const registeredUser = await db.users.update(id, {
-			first,
-			last,
+			name,
 			phone,
 			password: hash,
-			activation: ''
+			activation: null,
+			activated: true,
+			last_visit: new Date()
 		})
 
+		await db.email_activation.destroy(user.activation)
+
 		delete registeredUser.password
+		delete registeredUser.activation
 
 		req.session.user = registeredUser
 
@@ -119,11 +146,12 @@ module.exports = {
 
 		if (!user) return res.status(404).send('User does not exist')
 
-		const auth = bcrypt.compareSync(password, user.password)
+		const authenticated = bcrypt.compareSync(password, user.password)
 
-		if (!auth) return res.status(403).send('User or pass wrong')
+		if (!authenticated) return res.status(403).send('User or pass wrong')
 
 		delete user.password
+		delete user.activation
 
 		req.session.user = user
 
@@ -143,5 +171,79 @@ module.exports = {
 		res.sendStatus(200)
 	},
 	// TODO: Write and test activation process
-	resendActivation: async (req, res) => {}
+	resendActivation: async (req, res) => {
+		const db = req.app.get('db'),
+			{ id, name, email } = req.body,
+			activation = keygen.url(keygen.large), // * Generate new activation token
+			activationHash = bcrypt.hashSync(activation, bcrypt.genSaltSync(10))
+
+		// * Generate new message
+
+		const message = {
+			from: SMTP_USER,
+			to: email,
+			subject: 'Hub Account Activation',
+			template: 'activation',
+			context: {
+				first: name.substring(0, name.indexOf(' ')),
+				activation: `http://localhost:9000/auth/activate?a=${activation}&id=${id}`
+			}
+		}
+
+		// * Get old email activation record ID
+
+		const { activation: oldActivation } = await db.users.findOne(id)
+
+		// * Insert new email activation record
+
+		const newActivation = await db.email_activation.insert({
+			user_id: id,
+			activation: activationHash,
+			to: email,
+			expiration: addDays(new Date(), 1)
+		})
+
+		// * Send new message
+		transporter.sendMail(message, async (error, info) => {
+			await db.email_log.insert({ error, info, message })
+			if (error) return res.status(500).send(error)
+			console.log(`Registration email sent`)
+		})
+		// * Update user with new activation ID
+		await db.users.update(id, { activation: newActivation.id })
+
+		// * Delete old email activation record
+
+		await db.email_activation.destroy(oldActivation)
+
+		res.sendStatus(200)
+	},
+	deleteUser: async (req, res) => {
+		const db = req.app.get('db'),
+			{ id } = req.params,
+			{ modified_by } = req.body,
+			user = await db.users.findOne(id)
+
+		try {
+			await db.delete_user(id)
+		} catch (err) {
+			console.error(err)
+			return res
+				.status(500)
+				.send(
+					'Whoops! Something went wrong when trying to delete. Check server console'
+				)
+		}
+
+		try {
+			await db.user_modification_log.insert({
+				action: 'deleted',
+				previous: user,
+				modified_by
+			})
+		} catch (err) {
+			console.log('Error when trying to add to user_modification_log', err)
+		}
+		res.sendStatus(200)
+	}
 }

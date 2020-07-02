@@ -76,7 +76,12 @@ module.exports = {
 			for (let key in req.body) {
 				switch (key) {
 					case 'available':
-						output = await db.update_user_availability(id, available)
+						output = await db.users.update(id, {
+							available
+						})
+						delete output.password
+						delete output.activation
+						req.session.user = output
 						break
 					case 'phone':
 						await db.users.update(id, { phone: phone })

@@ -9,14 +9,15 @@ import CardMedia from '@material-ui/core/CardMedia'
 import TextField from '@material-ui/core/TextField'
 import axios from 'axios'
 import Grid from '@material-ui/core/Grid'
+import Card from '@material-ui/core/Card'
 
 const useStyles = makeStyles(theme => ({
 	root: {
 		maxWidth: 375
 	},
 	media: {
-		width: 200,
-		height: 40,
+		width: 250,
+		height: 50,
 		margin: 30
 	},
 	container: {
@@ -30,11 +31,11 @@ const useStyles = makeStyles(theme => ({
 		width: '100vw'
 	},
 	field: {
-		padding: theme.spacing(1),
+		// padding: theme.spacing(1),
 		textAlign: 'center',
-		width: '80%',
+		// width: '80%',
 		'& input': {
-			textAlign: 'center'
+			// textAlign: 'center'
 		}
 	}
 }))
@@ -68,7 +69,7 @@ const Login = props => {
 			className={classes.login}
 		>
 			<Grid item>
-				<Grid className={classes.root}>
+				<Card className={classes.root}>
 					<CardMedia
 						image='/assets/img/The_Hub.png'
 						className={classes.media}
@@ -111,7 +112,7 @@ const Login = props => {
 							</Grid>
 						</form>
 					</CardContent>
-				</Grid>
+				</Card>
 			</Grid>
 			<ToastContainer />
 		</Grid>

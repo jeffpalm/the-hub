@@ -1,3 +1,5 @@
 {
-    "ignore": ["src/", "db/", "server/util/*"]
+    "ignore": ["src/*", "db/*", "server/util/*"],
+    "watch": ["server/*", "db/*"],
+    "ext": "js,sql"
 }

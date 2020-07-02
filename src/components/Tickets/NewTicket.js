@@ -33,8 +33,8 @@ const useStyles = makeStyles(theme => ({
 		padding: theme.spacing(1)
 	},
 	field: {
-		margin: theme.spacing(1),
-		padding: theme.spacing(1),
+		margin: theme.spacing(2),
+		// padding: theme.spacing(1),
 		textAlign: 'center',
 		width: '90%',
 		'& input': {

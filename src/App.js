@@ -8,7 +8,7 @@ const App = props => {
 	const { pathname } = useLocation()
 	return (
 		<>
-			{pathname === '/' ? null : <Header />}
+			{pathname === '/' || pathname === '/activate/complete' ? null : <Header />}
 			{routes}
 		</>
 	)

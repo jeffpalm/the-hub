@@ -12,4 +12,6 @@ SELECT
   last_visit,
   activated
 FROM
-  users;
+  users
+ORDER BY
+created DESC;

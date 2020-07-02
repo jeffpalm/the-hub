@@ -57,14 +57,7 @@ const testMiddleWare = async (req, res, next) => {
 	// req.testActivityId = (await db.test_table.insert({name: 'something'})).id
 	next()
 }
-app.get('/something', testMiddleWare, async (req, res) => {
-	const db = req.app.get('db'),
-		managerRoles = await db.user_role.find({
-			or: [{ manager: true }, { admin: true }]
-		})
-
-	res.status(200).send(managerRoles)
-})
+app.get('/something', testMiddleWare, authCtrl.resendActivation)
 
 // TODO: DON'T LEAVE THIS ENDPOINT AVAILABLE
 // ! Development endpoints
@@ -72,13 +65,16 @@ app.post('/seed', devSeed.writeSql, devSeed.seedDb)
 
 // TODO: USER CREATION
 // * Auth Endpoints
-app.post('/auth/new', role.adminsOnly, authCtrl.createUser)
+// TODO: ADD ADMIN ROLE MIDDLEWARE BACK AFTER TESTING
+app.post('/auth/new',  authCtrl.createUser)
 app.get('/auth/activate', authCtrl.activate)
 app.post('/auth/register', authCtrl.register)
 app.post('/auth/login', devMiddleware, authCtrl.login)
 app.get('/auth/user', authCtrl.getUser)
 app.delete('/auth/logout', authCtrl.logout)
-app.post('/auth/resend', role.adminsOnly, authCtrl.resendActivation)
+app.post('/auth/reactivate', role.adminsOnly, authCtrl.resendActivation)
+app.delete('/auth/user/:id', role.adminsOnly, authCtrl.deleteUser)
+
 
 // * Ticket Endpoints
 app.get('/api/tickets', role.usersOnly, ticketCtrl.getTickets)
@@ -194,8 +190,8 @@ app.delete(
 app.get('/api/config', role.usersOnly, configCtrl.getConfig)
 app.get('/api/settings/ticket', role.usersOnly, configCtrl.ticket)
 app.get('/api/users', role.usersOnly, userCtrl.getUsers)
-app.put('/api/user/:id', role.usersOnly, userCtrl.updateUser)
 app.get('/api/users/managers', role.usersOnly, userCtrl.getManagers)
+app.put('/api/user/:id', role.usersOnly, userCtrl.updateUser)
 app.get('/api/user/:id', role.usersOnly, configCtrl.getUser)
 app.put('/api/admin/user/:id', role.adminsOnly, userCtrl.adminUpdateUser)
 

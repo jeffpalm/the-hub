@@ -178,6 +178,34 @@ CREATE TABLE "ticket_assignment" (
   "logged" timestamptz(2) DEFAULT (NOW())
 );
 
+CREATE TABLE user_modification_log(
+  "id" SERIAL PRIMARY KEY,
+  "user_id" UUID,
+  "action" ACTION_TYPES,
+  "current" JSON,
+  "previous" JSON,
+  "modified_by" UUID,
+  "logged" TIMESTAMPTZ(2) DEFAULT (now())
+);
+
+CREATE TABLE email_log(
+  "id" SERIAL PRIMARY KEY,
+  "info" JSON,
+  "error" JSON,
+  "message" JSON,
+  "logged" TIMESTAMPTZ(2) DEFAULT (now())
+);
+
+ALTER TABLE
+  user_modification_log
+ADD
+  FOREIGN KEY ("user_id") REFERENCES users(id);
+
+ALTER TABLE
+  user_modification_log
+ADD
+  FOREIGN KEY ("modified_by") REFERENCES users(id);
+
 ALTER TABLE
   "users"
 ADD
@@ -287,6 +315,13 @@ COMMENT ON COLUMN "user_role"."support_manager" IS 'For ticket queue support man
 
 COMMENT ON TABLE "vehicles" IS 'As VINs are decoded, this table will populate to minimize API calls';
 
+INSERT INTO
+  users (id, NAME)
+VALUES
+  (
+    '84d5fc61-90f1-4d5e-a2d3-cb8ea7433ac2',
+    'Unassigned'
+  )
 INSERT INTO
   admin_ticket_type (id, NAME, weight)
 VALUES
@@ -530,7 +565,6 @@ WHERE
   ta.action = 'created'
   AND ta.activity = 'appointment';
 
-
 CREATE MATERIALIZED VIEW activity_ticket_attachment_created AS
 SELECT
   ta.id,
@@ -548,16 +582,15 @@ WHERE
   ta.action = 'created'
   AND ta.activity = 'attachment';
 
-
 CREATE MATERIALIZED VIEW all_tickets AS
 SELECT
   t.id,
   g.name AS guest,
   g.id AS guest_id,
   g.phone AS guest_phone,
-  c.name AS cosigner_name,
-  c.id AS cosigner_id,
-  c.phone AS cosigner_phone,
+  C .name AS cosigner_name,
+  C .id AS cosigner_id,
+  C .phone AS cosigner_phone,
   s.name AS sales,
   s.phone AS sales_phone,
   s.id AS sales_id,
@@ -580,20 +613,12 @@ FROM
   JOIN users AS s ON t.sales_id = s.id
   JOIN users AS m ON t.manager_id = m.id
   JOIN guests AS g ON t.guest_id = g.id
-  LEFT JOIN guests AS c ON t.cosigner_id = c.id
+  LEFT JOIN guests AS C ON t.cosigner_id = C .id
   JOIN admin_ticket_type AS tt ON t.type = tt.id
   JOIN admin_ticket_status AS ts ON t.status = ts.id
   LEFT JOIN activity_ticket_created AS atc ON atc.ticket_id = t.id
   LEFT JOIN activity_ticket_last_update AS atlu ON atlu.ticket_id = t.id
-JOIN vehicles as v ON t.vin = v.vin;
-
-
-
-
-
-
-
-
+  JOIN vehicles AS v ON t.vin = v.vin;
 
 CREATE MATERIALIZED VIEW available_managers AS
 SELECT
@@ -633,18 +658,21 @@ GROUP BY
   ur.id,
   ur.name;
 
-
 CREATE UNIQUE INDEX log_id ON activity_ticket_message_created (ticket_id, id);
+
 CREATE UNIQUE INDEX log_id ON activity_ticket_appointment_created (ticket_id, id);
+
 CREATE UNIQUE INDEX log_id ON activity_ticket_attachment_created (ticket_id, id);
+
 CREATE UNIQUE INDEX log_id ON activity_ticket_updated (ticket_id, id);
+
 CREATE UNIQUE INDEX log_id ON activity_ticket_created (ticket_id, id);
+
 CREATE UNIQUE INDEX log_id ON activity_ticket_last_update (ticket_id, id);
 
 CREATE UNIQUE INDEX manager_id ON available_managers (manager_id);
+
 CREATE UNIQUE INDEX ticket_id ON all_tickets (id);
-
-
 
 CREATE
 OR REPLACE FUNCTION refresh_views() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN
@@ -676,14 +704,8 @@ UPDATE
 DELETE
   OR TRUNCATE ON ticket_activity FOR EACH STATEMENT EXECUTE PROCEDURE refresh_views();
 
-
-
 CREATE
-OR REPLACE FUNCTION notify_new_activity() 
-RETURNS TRIGGER 
-AS 
-$BODY$ 
-BEGIN
+OR REPLACE FUNCTION notify_new_activity() RETURNS TRIGGER AS $BODY$ BEGIN
   perform pg_notify('new_ticket_activity', row_to_json(NEW) :: text);
 
 RETURN NULL;
@@ -694,4 +716,4 @@ $BODY$ LANGUAGE plpgsql COST 100;
 
 CREATE TRIGGER notify_new_message AFTER
 INSERT
-ON "ticket_activity" FOR each ROW EXECUTE PROCEDURE notify_new_message();
+  ON "ticket_activity" FOR each ROW EXECUTE PROCEDURE notify_new_message();

@@ -17,7 +17,7 @@ export default (
 		<ProtectedRoute path='/ticket/:ticketid' component={Ticket} />
 		<ProtectedRoute path='/new' component={NewTicket} />
 		<ProtectedRoute path='/users' roles={[ADMIN]} component={UserManagement} />
-		<ProtectedRoute exact path='/activate' component={Activate}/>
+		<ProtectedRoute exact path='/activate/complete' component={Activate}/>
 		<Route exact path='/unauthorized' component={NoNoNo} />
 		<Redirect to='/' />
 	</Switch>

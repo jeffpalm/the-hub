@@ -1,5 +1,7 @@
 module.exports = {
 	adminsOnly: async (req, res, next) => {
+		if (!req.session.user) return res.status(401).send('No no no... Must be logged in!')
+
 		const db = req.app.get('db'),
 			{ role } = req.session.user,
 			adminRoles = await db.user_role.find({
@@ -17,6 +19,8 @@ module.exports = {
 		next()
 	},
 	managersOnly: async (req, res, next) => {
+		if (!req.session.user) return res.status(401).send('No no no... Must be logged in!')
+
 		const db = req.app.get('db'),
 			{ role } = req.session.user,
 			managerRoles = await db.user_role.find({

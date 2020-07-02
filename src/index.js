@@ -17,7 +17,7 @@ const theme = unstable_createMuiStrictModeTheme({
 	spacing: 8,
 	palette: {
 		primary: { main: '#62A60A' },
-		secondary: { main: '#333d47' },
+		secondary: { main: '#007197' },
 		type: 'dark',
 		background: {
 			default: 'rgba(51, 61, 71, .9)',
@@ -32,29 +32,29 @@ const theme = unstable_createMuiStrictModeTheme({
 				}
 			}
 		},
-		MuiInputLabel: {
-			outlined: {
-				transform: 'translate(0px, 25px) scale(1)',
-				transformOrigin: 'center',
-				'&.MuiInputLabel-shrink': {
-					transform: 'translate(0px, 0px) scale(0.75)'
-				}
-			},
-			shrink: {
-				transformOrigin: 'center'
-			},
-			animated: {
-				transition: 'transform linear 100ms'
-			}
-		}
+		// MuiInputLabel: {
+		// 	outlined: {
+		// 		transform: 'translate(0px, 25px) scale(1)',
+		// 		transformOrigin: 'center',
+		// 		'&.MuiInputLabel-shrink': {
+		// 			transform: 'translate(0px, 0px) scale(0.75)'
+		// 		}
+		// 	},
+		// 	shrink: {
+		// 		transformOrigin: 'center'
+		// 	},
+		// 	animated: {
+		// 		transition: 'transform linear 100ms'
+		// 	}
+		// }
 	},
 	props: {
-		MuiInputLabel: {
-			style: {
-				textAlign: 'center',
-				width: '100%'
-			}
-		}
+		// MuiInputLabel: {
+		// 	style: {
+		// 		textAlign: 'center',
+		// 		width: '100%'
+		// 	}
+		// }
 	}
 })
 

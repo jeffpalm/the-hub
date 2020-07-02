@@ -3,10 +3,10 @@ import axios from 'axios'
 import { connect } from 'react-redux'
 import MaterialTable, { MTableEditField } from 'material-table'
 import Box from '@material-ui/core/Box'
-import TextField from '@material-ui/core/TextField'
-import Icon from '@material-ui/core/Icon'
+import IconButton from '@material-ui/core/IconButton'
 import EmailIcon from '@material-ui/icons/Email'
 import Tooltip from '@material-ui/core/Tooltip'
+import { toast, ToastContainer } from 'react-toastify'
 
 const UserManagement = props => {
 	const columns = [
@@ -43,12 +43,33 @@ const UserManagement = props => {
 			title: 'Activated',
 			field: 'activated',
 			cellStyle: cellData => ({
-				backgroundColor: cellData ? '' : '#F42434'
+				backgroundColor: cellData ? '' : '#F4243450'
 			}),
 			render: rowData =>
 				rowData.activated ? null : (
 					<Tooltip title='Resend Activation Email'>
-						<EmailIcon />
+						<IconButton
+							onClick={async () => {
+								const { id, name, email } = rowData
+								setIsLoading(true)
+								try {
+									await axios.post('/auth/reactivate', {
+										id,
+										name,
+										email
+									})
+								} catch (err) {
+									throw err
+								} finally {
+									setIsLoading(false)
+									toast.success(`New activation email send to: ${email}`, {
+										position: 'bottom-left'
+									})
+								}
+							}}
+						>
+							<EmailIcon />
+						</IconButton>
 					</Tooltip>
 				)
 		}
@@ -60,7 +81,6 @@ const UserManagement = props => {
 	useEffect(() => {
 		const CancelToken = axios.CancelToken
 		const source = CancelToken.source()
-
 		const loadData = async () => {
 			try {
 				const res = await axios.get('/api/users', { cancelToken: source.token })
@@ -76,11 +96,14 @@ const UserManagement = props => {
 				setIsLoading(false)
 			}
 		}
-		loadData()
+		if (isLoading) {
+			loadData()
+		}
+
 		return () => {
 			source.cancel()
 		}
-	}, [])
+	}, [isLoading])
 
 	return (
 		<Box mt={9} mr={1} ml={1}>
@@ -126,16 +149,34 @@ const UserManagement = props => {
 					}
 				}}
 				actions={[
-					rowData => ({
+					_rowData => ({
 						icon: 'delete',
 						tooltip: 'Delete user',
-						onClick: (e, rowData) => {
+						onClick: async (_e, rowData) => {
 							const confirm = window
 								.confirm(
 									`Are you sure you want to delete ${rowData.name}? All their open tickets will be reassigned.`
 								)
 								.valueOf()
-							console.log(confirm)
+							if (confirm) {
+								setIsLoading(true)
+								const { id: modified_by } = props.auth.user,
+									CancelToken = axios.CancelToken,
+									source = CancelToken.source()
+
+								try {
+									await axios.delete(`/auth/user/${rowData.id}`, {
+										data: { modified_by },
+										cancelToken: source.token
+									})
+								} catch (err) {
+									if (axios.isCancel(err)) {
+										console.log('User management request cancelled')
+									} else {
+										throw err
+									}
+								}
+							}
 						}
 					})
 				]}
@@ -148,6 +189,7 @@ const UserManagement = props => {
 					)
 				}}
 			/>
+			<ToastContainer pauseOnHover={false} pauseOnFocusLoss={false} autoClose={3000} />
 		</Box>
 	)
 }

@@ -187,7 +187,7 @@ const Header = props => {
 
 	const logout = async () => {
 		try {
-			await axios.put(`/api/user/${userId}?available=false`)
+			await axios.put(`/api/user/${userId}`, { available: !available })
 			await axios.delete('/auth/logout')
 		} catch (err) {
 			console.log(err)
@@ -241,22 +241,17 @@ const Header = props => {
 
 	const [availabilityLoading, setAvailabilityLoading] = useState(false)
 
-	const handleAvailabilityToggle = () => {
+	const handleAvailabilityToggle = async () => {
 		setAvailabilityLoading(true)
-		axios
-			.put(`/api/user/${userId}`, { available: !available })
-			.then(res => {
-				props.requestUser()
-			})
-			.catch(err => console.log(err))
-	}
-
-	useEffect(() => {
-		if (availabilityLoading) {
+		try {
+			await axios.put(`/api/user/${userId}`, { available: !available })
+			await props.requestUser()
+		} catch (err) {
+			throw err
+		} finally {
 			setAvailabilityLoading(false)
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [available])
+	}
 
 	return (
 		<>

@@ -4,11 +4,11 @@
 	justify-content: $jc;
 	align-items: $ai;
 }
-@for $i from 1 through 100 {
-	.PrivateNotchedOutline-legendLabelled-#{$i} {
-		text-align: center !important;
-	}
-}
+// @for $i from 1 through 200 {
+// 	.PrivateNotchedOutline-legendLabelled-#{$i} {
+// 		text-align: center !important;
+// 	}
+// }
 
 body::-webkit-scrollbar {
 	display: none;

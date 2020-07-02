@@ -7,6 +7,7 @@ import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 import ManagerQueueCard from './ManagerQueueCard'
+import blueGrey from '@material-ui/core/colors/blueGrey'
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -30,7 +31,7 @@ const useStyles = makeStyles(theme => ({
 	workStackBg: {
 		width: '98%',
 		height: '100%',
-		border: `2px solid ${theme.palette.secondary.dark}`
+		border: `2px solid ${blueGrey[900]}`
 	}
 }))
 
