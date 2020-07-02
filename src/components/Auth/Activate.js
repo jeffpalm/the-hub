@@ -604,7 +604,7 @@ const Activate = props => {
 							variant='outlined'
 							color='primary'
 						>
-							{text.passwordConfirmBtn}k
+							{text.passwordConfirmBtn}
 						</Button>
 					</FormControl>
 				</Fade>
