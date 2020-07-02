@@ -5,7 +5,7 @@ import MaterialTable, { MTableEditField } from 'material-table'
 import Box from '@material-ui/core/Box'
 import IconButton from '@material-ui/core/IconButton'
 import EmailIcon from '@material-ui/icons/Email'
-import Tooltip from '@material-ui/core/Tooltip'
+// import Tooltip from '@material-ui/core/Tooltip'
 import { toast, ToastContainer } from 'react-toastify'
 
 const UserManagement = props => {
@@ -47,7 +47,7 @@ const UserManagement = props => {
 			}),
 			render: rowData =>
 				rowData.activated ? null : (
-					<Tooltip title='Resend Activation Email'>
+
 						<IconButton
 							onClick={async () => {
 								const { id, name, email } = rowData
@@ -70,7 +70,7 @@ const UserManagement = props => {
 						>
 							<EmailIcon />
 						</IconButton>
-					</Tooltip>
+
 				)
 		}
 	]

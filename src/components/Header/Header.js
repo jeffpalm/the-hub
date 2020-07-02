@@ -22,7 +22,7 @@ import Grid from '@material-ui/core/Grid'
 import Collapse from '@material-ui/core/Collapse'
 import * as roles from '../../constants/ROLES'
 import Switch from '@material-ui/core/Switch'
-import Tooltip from '@material-ui/core/Tooltip'
+// import Tooltip from '@material-ui/core/Tooltip'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Backdrop from '@material-ui/core/Backdrop'
 import Fade from '@material-ui/core/Fade'
@@ -384,7 +384,7 @@ const Header = props => {
 							{props.user.role === roles.FINANCE_MGR &&
 							(available === false || available === true) ? (
 								<>
-									<Tooltip title='Toggle availability'>
+				
 										<Switch
 											checked={available}
 											onChange={handleAvailabilityToggle}
@@ -396,7 +396,7 @@ const Header = props => {
 											}}
 											color={available ? 'secondary' : 'secondary'}
 										/>
-									</Tooltip>
+					
 								</>
 							) : null}
 							<IconButton edge='end' onClick={logout}>

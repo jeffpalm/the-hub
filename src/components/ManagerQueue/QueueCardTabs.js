@@ -7,7 +7,7 @@ import Tab from '@material-ui/core/Tab'
 import Typography from '@material-ui/core/Typography'
 import Box from '@material-ui/core/Box'
 import Grid from '@material-ui/core/Grid'
-import Tooltip from '@material-ui/core/ToolTip'
+// import Tooltip from '@material-ui/core/ToolTip'
 import copy from 'copy-to-clipboard'
 import { toast } from 'react-toastify'
 // import Button from '@material-ui/core/Button'
@@ -129,7 +129,7 @@ const QueueCardTabs = ({ ticket, ...props }) => {
 					<Typography variant='body2' component='p'>
 						{`${year} ${make} ${model}`}
 					</Typography>
-					<Tooltip title='Click to copy VIN' placement='bottom-start'>
+					
 						<Typography
 							className={classes.btn}
 							variant='button'
@@ -138,7 +138,7 @@ const QueueCardTabs = ({ ticket, ...props }) => {
 						>
 							{vin}
 						</Typography>
-					</Tooltip>
+
 					<Typography variant='caption'>
 						Other apps on this vehicle: {vehicle_ticket_count || '0'}
 					</Typography>
