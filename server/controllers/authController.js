@@ -58,7 +58,7 @@ module.exports = {
 				template: 'activation',
 				context: {
 					first: name.substring(0, name.indexOf(' ')),
-					activation: `http://localhost:9000/auth/activate?a=${activation}&id=${newUser.id}`
+					activation: `https://the-hub.io/auth/activate?a=${activation}&id=${newUser.id}`
 				}
 			},
 			activationEmail = await db.email_activation.insert({
@@ -110,6 +110,7 @@ module.exports = {
 
 		req.session.user = user
 
+		// res.status(200).redirect(`/#/activate/complete`)
 		res.status(200).redirect(`/#/activate/complete`)
 	},
 	register: async (req, res) => {
@@ -186,7 +187,7 @@ module.exports = {
 			template: 'activation',
 			context: {
 				first: name.substring(0, name.indexOf(' ')),
-				activation: `http://localhost:9000/auth/activate?a=${activation}&id=${id}`
+				activation: `https://the-hub.io/auth/activate?a=${activation}&id=${id}`
 			}
 		}
 
