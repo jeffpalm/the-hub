@@ -32,7 +32,7 @@
     "lodash": "^4.17.15",
     "massive": "^6.4.0",
     "material-table": "^1.62.0",
-    "moment": "^2.27.0",
+    "moment": "^2.29.4",
     "node-sass": "^7.0.0",
     "nodemailer": "^6.4.10",
     "nodemailer-express-handlebars": "^4.0.0",
